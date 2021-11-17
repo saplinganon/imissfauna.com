@@ -81,7 +81,9 @@ export default function Home(props) {
 
             <footer>
                 <a href={channelLink}>Ceres Fauna Ch. hololive-EN</a> <br />
-                <small>Not affiliated with Fauna or hololive</small>
+                <small>
+                    Not affiliated with Fauna or hololive - <a href="https://github.com/saplinganon/imissfauna.com">Source</a>
+                </small>
             </footer>
         </div>
     </div>
