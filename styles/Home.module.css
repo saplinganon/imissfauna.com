@@ -1,0 +1,19 @@
+.site {
+    max-width: 800px;
+    text-align: center;
+    margin: 1rem auto;
+    padding: 1rem;
+}
+
+.site img {
+    max-width: 480px;
+    width: 100%;
+}
+
+.site small {
+    font-size: 50%;
+}
+
+.site footer {
+  margin-top: 5rem;
+}
