@@ -60,7 +60,6 @@ export function extractLivestreamInfo(fromPageContent) {
         const text = scripts[i].textContent
         
         if (text.startsWith(VIDEO_INFO_EXPECT_START)) {
-            console.log(text.substring(VIDEO_INFO_EXPECT_START.length, text.length - 1))
             try {
                 playerInfo = JSON.parse(text.substring(VIDEO_INFO_EXPECT_START.length, text.length - 1))
             } catch {
@@ -94,7 +93,7 @@ export function extractLivestreamInfo(fromPageContent) {
     const expectedStartTime = parseInt(ts) * 1000
     const waitTimeLeftMS = expectedStartTime - (new Date().getTime())
     basicResponse.result.streamStartTime = new Date(expectedStartTime)
-    if (waitTimeLeftMS > 3600 * 1000) {
+    if (waitTimeLeftMS > 1800 * 1000) {
         basicResponse.result.live = STREAM_STATUS.OFFLINE
     }
 

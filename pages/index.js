@@ -22,7 +22,7 @@ export async function getServerSideProps({ req, res }) {
         } }
     }
 
-    res.setHeader("Cache-Control", "max-age=0, s-maxage=180, stale-while-revalidate=300")
+    res.setHeader("Cache-Control", "max-age=0, s-maxage=90, stale-while-revalidate=180")
 
     const { error, result } = await pollLivestreamStatus(process.env.WATCH_CHANNEL_ID)
     if (error) {
@@ -47,7 +47,7 @@ function StreamInfo(props) {
     if (props.info.link) {
         switch (props.status) {
             case STREAM_STATUS.LIVE:
-                text = "Current Stream: "
+                text = <b className={styles.red}>LIVE: </b>
                 break
             case STREAM_STATUS.STARTING_SOON:
                 text = "Starting Soon: "
@@ -80,7 +80,6 @@ export default function Home(props) {
         </div>
     } else if (props.status != STREAM_STATUS.LIVE && props.status != STREAM_STATUS.STARTING_SOON) {
         className = "miss-her"
-        caption = ""
         image = selectRandomImage(NO_STREAM_IMAGE_SET)
         bottomInfo = <StreamInfo status={props.status} info={props.streamInfo} />
     } else {
