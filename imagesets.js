@@ -16,4 +16,8 @@ export const NO_STREAM_IMAGE_SET = [
     "vibrate.png",
     "water1.jpg",
     "water2.jpg",
+    "minecraft.jpg",
+    "neighbula imf.jpg",
+    "teardrop.png",
+    "crywave.jpg",
 ].map((v) => `imagesets/no-stream/${v}`)
