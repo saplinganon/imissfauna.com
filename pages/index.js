@@ -42,6 +42,21 @@ export async function getServerSideProps({ req, res }) {
     } }
 }
 
+function createEmbedDescription(status, streamInfo) {
+    if (!streamInfo) {
+        return ""
+    }
+
+    switch (status) {
+        case STREAM_STATUS.LIVE:
+            return `Streaming: ${streamInfo.title}`
+        case STREAM_STATUS.STARTING_SOON:
+            return `Starting Soon: ${streamInfo.title}`
+        default:
+            return `Next Stream: ${streamInfo.title}`
+    }
+}
+
 function StreamInfo(props) {
     let link, text
     if (props.info.link) {
@@ -93,6 +108,12 @@ export default function Home(props) {
         <Head>
             <title>I MISS FAUNA</title>
             <meta name="viewport" content="initial-scale=1.0, width=device-width" />
+            <meta name="theme-color" content="#e0ffae" />
+            <link type="application/json+oembed" href="/oembed.json" />
+            <meta content="I MISS FAUNA" property="og:title" />
+            <meta content={createEmbedDescription(props.status, props.streamInfo)} property="og:description" />
+            <meta content={`/${image}`} property="og:image" />
+            <meta name="twitter:card" content="summary_large_image" />
         </Head>
 
         <div className={className}>
