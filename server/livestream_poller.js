@@ -108,3 +108,14 @@ export async function pollLivestreamStatus(channelID) {
 
     return extractLivestreamInfo(youtubeHTML)   
 }
+
+export async function pollLivestreamStatusDummy(unused) {
+    // return { error: "Fake Error", result: null } 
+    return { error: null, result: { live: STREAM_STATUS.OFFLINE, title: null, videoLink: null, streamStartTime: null } }
+    return { error: null, result: { 
+        live: STREAM_STATUS.OFFLINE, 
+        title: "Dummy dummy dummy dummy", 
+        videoLink: "https://www.youtube.com/watch?v=aaaaaaaaaaa", 
+        streamStartTime: new Date(Date.now() + 3600000)
+    } }
+}

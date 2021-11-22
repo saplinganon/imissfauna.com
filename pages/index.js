@@ -1,6 +1,6 @@
 import styles from '../styles/Home.module.css'
 import Head from "next/head"
-import { STREAM_STATUS, pollLivestreamStatus } from "../server/livestream_poller"
+import { STREAM_STATUS, pollLivestreamStatus, pollLivestreamStatusDummy } from "../server/livestream_poller"
 import { ERROR_IMAGE_SET, HAVE_STREAM_IMAGE_SET, NO_STREAM_IMAGE_SET } from "../imagesets"
 
 function selectRandomImage(fromSet) {
@@ -8,23 +8,16 @@ function selectRandomImage(fromSet) {
 }
 
 export async function getServerSideProps({ req, res }) {
+    let apiVal
     if (process.env.USE_DUMMY_DATA === "true") {
-        return { props: {
-            status: STREAM_STATUS.OFFLINE,
-            isError: false,
-            streamInfo: { }
-            // streamInfo: {
-            //     link: "https://www.youtube.com/watch?v=aaaaaaaaaaa",
-            //     title: "Dummy dummy dummy dummy",
-            //     startTime: (new Date()).getTime() + 3600,
-            //     currentTime: (new Date()).getTime()
-            // }
-        } }
+        apiVal = await pollLivestreamStatusDummy(process.env.WATCH_CHANNEL_ID)
+    } else {
+        apiVal = await pollLivestreamStatus(process.env.WATCH_CHANNEL_ID)
+        res.setHeader("Cache-Control", "max-age=0, s-maxage=90, stale-while-revalidate=180")
     }
 
-    res.setHeader("Cache-Control", "max-age=0, s-maxage=90, stale-while-revalidate=180")
+    const { result, error } = apiVal
 
-    const { error, result } = await pollLivestreamStatus(process.env.WATCH_CHANNEL_ID)
     if (error) {
         console.warn("livestream poll returned error:", error)
         return { props: { isError: true } }
@@ -42,8 +35,12 @@ export async function getServerSideProps({ req, res }) {
     } }
 }
 
+function isStreamInfoValid(streamInfo) {
+    return !!(streamInfo.link)
+}
+
 function createEmbedDescription(status, streamInfo) {
-    if (!streamInfo) {
+    if (!isStreamInfoValid(streamInfo)) {
         return ""
     }
 
@@ -59,7 +56,7 @@ function createEmbedDescription(status, streamInfo) {
 
 function StreamInfo(props) {
     let link, text
-    if (props.info.link) {
+    if (isStreamInfoValid(props.info)) {
         switch (props.status) {
             case STREAM_STATUS.LIVE:
                 text = <b className={styles.red}>LIVE: </b>
