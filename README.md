@@ -10,5 +10,3 @@ In .env or the actual environment:
 ## How to add images
 
 1. Put a .png or .jpg file in public/imagesets/[name]
-2. Add the filename to the category in imagesets.js
-

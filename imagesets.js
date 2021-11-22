@@ -1,23 +1,19 @@
-export const ERROR_IMAGE_SET = [
-    "clover.png",
-].map((v) => `imagesets/errored/${v}`)
+function importAll(requireModule, pathToImage) {
+  return requireModule.keys().map((item, index) => item.replace('./', pathToImage));
+}
 
-export const HAVE_STREAM_IMAGE_SET = [
-    "wave.png",
-].map((v) => `imagesets/have-stream/${v}`)
+// The paths have to be written out because invocation of require.context needs to be statically analyzable
+export const ERROR_IMAGE_SET = importAll(
+    require.context('./public/imagesets/errored', false, /\.(png|jpe?g|svg)$/),
+    'imagesets/errored/'
+);
 
-export const NO_STREAM_IMAGE_SET = [
-    "banana.jpg",
-    "bw.png",
-    "cry.png",
-    "cyberkirin.png",
-    "imf museum.jpg",
-    "saplings_miss_their_kirin_mother.jpg",
-    "vibrate.png",
-    "water1.jpg",
-    "water2.jpg",
-    "minecraft.jpg",
-    "neighbula imf.jpg",
-    "teardrop.png",
-    "crywave.jpg",
-].map((v) => `imagesets/no-stream/${v}`)
+export const HAVE_STREAM_IMAGE_SET = importAll(
+    require.context('./public/imagesets/have-stream', false, /\.(png|jpe?g|svg)$/),
+    'imagesets/have-stream/'
+);
+
+export const NO_STREAM_IMAGE_SET = importAll(
+    require.context('./public/imagesets/no-stream', false, /\.(png|jpe?g|svg)$/),
+    'imagesets/no-stream/'
+);
