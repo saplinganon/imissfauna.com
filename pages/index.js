@@ -2,8 +2,16 @@ import styles from '../styles/Home.module.css'
 import Head from "next/head"
 import { STREAM_STATUS, pollLivestreamStatus, pollLivestreamStatusDummy } from "../server/livestream_poller"
 import { ERROR_IMAGE_SET, HAVE_STREAM_IMAGE_SET, NO_STREAM_IMAGE_SET } from "../imagesets"
+import { useState } from "react"
 
-function selectRandomImage(fromSet) {
+function selectRandomImage(fromSet, excludingImage) {
+    let excludeIndex
+    if (excludingImage && (excludeIndex = fromSet.indexOf(excludingImage)) > -1) {
+        // This is to prevent the same image from being selected again.
+        const nextIndex = (Math.random() * fromSet.length - 1) | 0
+        return fromSet[nextIndex >= excludeIndex ? nextIndex + 1 : nextIndex]
+    }
+
     return fromSet[(Math.random() * fromSet.length) | 0]
 }
 
@@ -15,15 +23,27 @@ export async function getServerSideProps({ req, res }) {
         apiVal = await pollLivestreamStatus(process.env.WATCH_CHANNEL_ID)
         res.setHeader("Cache-Control", "max-age=0, s-maxage=90, stale-while-revalidate=180")
     }
-
     const { result, error } = apiVal
+
+    const absolutePrefix = process.env.PUBLIC_HOST
+    const channelLink = `https://www.youtube.com/channel/${process.env.WATCH_CHANNEL_ID}`
 
     if (error) {
         console.warn("livestream poll returned error:", error)
-        return { props: { isError: true } }
+        return { props: { isError: true, absolutePrefix, initialImage: selectRandomImage(ERROR_IMAGE_SET), channelLink } }
+    }
+
+    let initialImage
+    if (result.live != STREAM_STATUS.LIVE && result.live != STREAM_STATUS.STARTING_SOON) {
+        initialImage = selectRandomImage(NO_STREAM_IMAGE_SET)
+    } else {
+        initialImage = selectRandomImage(HAVE_STREAM_IMAGE_SET)
     }
 
     return { props: {
+        absolutePrefix,
+        initialImage,
+        channelLink,
         status: result.live,
         isError: false,
         streamInfo: {
@@ -81,23 +101,23 @@ function StreamInfo(props) {
 }
 
 export default function Home(props) {
-    let className, caption = "", image, bottomInfo
-    const channelLink = `https://www.youtube.com/channel/${process.env.WATCH_CHANNEL_ID}`
+    let className, caption = "", imageSet, bottomInfo
+    const [image, setImage] = useState(props.initialImage)
 
     if (props.isError) {
         className = "error"
-        image = selectRandomImage(ERROR_IMAGE_SET)
+        imageSet = ERROR_IMAGE_SET
         bottomInfo = <div className="stream-info">
             <p>There was a problem checking stream status. <a href={channelLink}>You can check Fauna&apos;s channel yourself</a>!</p>
         </div>
     } else if (props.status != STREAM_STATUS.LIVE && props.status != STREAM_STATUS.STARTING_SOON) {
         className = "miss-her"
-        image = selectRandomImage(NO_STREAM_IMAGE_SET)
+        imageSet = NO_STREAM_IMAGE_SET
         bottomInfo = <StreamInfo status={props.status} info={props.streamInfo} />
     } else {
         className = "comfy" 
         caption = "I Don't Miss Fauna"
-        image = selectRandomImage(HAVE_STREAM_IMAGE_SET)
+        imageSet = HAVE_STREAM_IMAGE_SET
         bottomInfo = <StreamInfo status={props.status} info={props.streamInfo} />
     }
 
@@ -105,22 +125,21 @@ export default function Home(props) {
         <Head>
             <title>I MISS FAUNA</title>
             <meta name="viewport" content="initial-scale=1.0, width=device-width" />
-            <meta name="theme-color" content="#e0ffae" />
-            <link type="application/json+oembed" href="/oembed.json" />
+            <meta name="theme-color" content="#c3f0ce" />
             <meta content="I MISS FAUNA" property="og:title" />
             <meta content={createEmbedDescription(props.status, props.streamInfo)} property="og:description" />
-            <meta content={`/${image}`} property="og:image" />
+            <meta content={`${props.absolutePrefix}/${image}`} property="og:image" />
             <meta name="twitter:card" content="summary_large_image" />
         </Head>
 
         <div className={className}>
             <h1>{caption}</h1>
-            <img src={image} alt="wah" />
+            <img src={`${props.absolutePrefix}/${image}`} alt="wah" onClick={() => setImage(selectRandomImage(imageSet, image))} />
 
             {bottomInfo}
 
             <footer>
-                <a href={channelLink}>Ceres Fauna Ch. hololive-EN</a> <br />
+                <a href={props.channelLink}>Ceres Fauna Ch. hololive-EN</a> <br />
                 <small>
                     Not affiliated with Fauna or hololive - <a href="https://github.com/saplinganon/imissfauna.com">Source</a>
                 </small>
