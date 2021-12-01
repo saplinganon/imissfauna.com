@@ -109,13 +109,30 @@ export async function pollLivestreamStatus(channelID) {
     return extractLivestreamInfo(youtubeHTML)   
 }
 
-export async function pollLivestreamStatusDummy(unused) {
-    // return { error: "Fake Error", result: null } 
-    return { error: null, result: { live: STREAM_STATUS.OFFLINE, title: null, videoLink: null, streamStartTime: null } }
-    return { error: null, result: { 
+export async function pollLivestreamStatusDummy(unused, selectMock) {
+    const fakeResult = { 
         live: STREAM_STATUS.OFFLINE, 
         title: "Dummy dummy dummy dummy", 
         videoLink: "https://www.youtube.com/watch?v=aaaaaaaaaaa", 
         streamStartTime: new Date(Date.now() + 3600000)
-    } }
+    }
+
+    switch (selectMock) {
+        case "error": return { error: "Fake Error", result: null }
+        case "nostream": return { error: null, result: { live: STREAM_STATUS.OFFLINE, title: null, videoLink: null, streamStartTime: null } }
+        case "degraded":
+            fakeResult.live = STREAM_STATUS.INDETERMINATE
+            fakeResult.streamStartTime = null
+            return { error: null, result: fakeResult }
+        case "farout":
+            fakeResult.live = STREAM_STATUS.OFFLINE
+            return { error: null, result: fakeResult }
+        case "soon":
+            fakeResult.live = STREAM_STATUS.STARTING_SOON
+            return { error: null, result: fakeResult }
+        case "live":
+        default:
+            fakeResult.live = STREAM_STATUS.LIVE
+            return { error: null, result: fakeResult }
+    }   
 }

@@ -6,19 +6,19 @@ import { useState } from "react"
 
 function selectRandomImage(fromSet, excludingImage) {
     let excludeIndex
-    if (excludingImage && (excludeIndex = fromSet.indexOf(excludingImage)) > -1) {
+    if (excludingImage && fromSet.length > 1 && (excludeIndex = fromSet.indexOf(excludingImage)) > -1) {
         // This is to prevent the same image from being selected again.
-        const nextIndex = (Math.random() * fromSet.length - 1) | 0
+        const nextIndex = (Math.random() * (fromSet.length - 1)) | 0
         return fromSet[nextIndex >= excludeIndex ? nextIndex + 1 : nextIndex]
     }
 
     return fromSet[(Math.random() * fromSet.length) | 0]
 }
 
-export async function getServerSideProps({ req, res }) {
+export async function getServerSideProps({ req, res, query }) {
     let apiVal
     if (process.env.USE_DUMMY_DATA === "true") {
-        apiVal = await pollLivestreamStatusDummy(process.env.WATCH_CHANNEL_ID)
+        apiVal = await pollLivestreamStatusDummy(process.env.WATCH_CHANNEL_ID, query.mock)
     } else {
         apiVal = await pollLivestreamStatus(process.env.WATCH_CHANNEL_ID)
         res.setHeader("Cache-Control", "max-age=0, s-maxage=90, stale-while-revalidate=180")
@@ -56,7 +56,7 @@ export async function getServerSideProps({ req, res }) {
 }
 
 function isStreamInfoValid(streamInfo) {
-    return !!(streamInfo.link)
+    return !!(streamInfo?.link)
 }
 
 function createEmbedDescription(status, streamInfo) {
@@ -108,7 +108,7 @@ export default function Home(props) {
         className = "error"
         imageSet = ERROR_IMAGE_SET
         bottomInfo = <div className="stream-info">
-            <p>There was a problem checking stream status. <a href={channelLink}>You can check Fauna&apos;s channel yourself</a>!</p>
+            <p>There was a problem checking stream status. <a href={props.channelLink}>You can check Fauna&apos;s channel yourself</a>!</p>
         </div>
     } else if (props.status != STREAM_STATUS.LIVE && props.status != STREAM_STATUS.STARTING_SOON) {
         className = "miss-her"
