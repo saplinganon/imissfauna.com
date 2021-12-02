@@ -3,6 +3,7 @@ import Head from "next/head"
 import { STREAM_STATUS, pollLivestreamStatus, pollLivestreamStatusDummy } from "../server/livestream_poller"
 import { ERROR_IMAGE_SET, HAVE_STREAM_IMAGE_SET, NO_STREAM_IMAGE_SET } from "../imagesets"
 import { useState } from "react"
+import { TextCountdown } from "../components/text_countdown"
 
 function selectRandomImage(fromSet, excludingImage) {
     let excludeIndex
@@ -49,8 +50,8 @@ export async function getServerSideProps({ req, res, query }) {
         streamInfo: {
             link: result.videoLink,
             title: result.title,
-            startTime: result.streamStartTime?.getTime() || null,
-            currentTime: (new Date()).getTime()
+            startTime: result.streamStartTime?.getTime?.() || null,
+            thumbnail: result.thumbnail
         }
     } }
 }
@@ -75,28 +76,44 @@ function createEmbedDescription(status, streamInfo) {
 }
 
 function StreamInfo(props) {
-    let link, text
+    let link, text, boxExtraClass = "", thumb
     if (isStreamInfoValid(props.info)) {
         switch (props.status) {
             case STREAM_STATUS.LIVE:
-                text = <b className={styles.red}>LIVE: </b>
+                text = "LIVE"
+                boxExtraClass = styles.streamInfoLive
                 break
             case STREAM_STATUS.STARTING_SOON:
-                text = "Starting Soon: "
+                text = "Starting Soon"
                 break
             default:
-                text = "Next Stream: "
+                text = "Next Stream"
                 break
         }
 
-        link = <b><a href={props.info.link}>{props.info.title}</a></b>
+        link = <a href={props.info.link}>{props.info.title}</a>
+        thumb = props.info.thumbnail
     } else {
-        text = "Current Stream: "
+        text = "Current Stream"
         link = <><b>NOTHING UUUUUUUuuuuuu</b> <small>(but maybe there&apos;s a member stream...)</small></>
     }
 
-    return <div className="stream-info">
-        <p>{text} {link}</p>
+    const formats = {
+        immediate: "(Now!)",
+        forFuture: "(in %@)",
+        forPast: "(%@ ago)",
+    }
+
+    return <div className={`${styles.streamInfo} ${boxExtraClass}`}>
+        <div className={styles.vstack}>
+            <p className={`${styles.streamInfoHead}`}>
+                {text} {props.status != STREAM_STATUS.LIVE && props.info?.startTime ? 
+                    <TextCountdown to={props.info.startTime} formatStrings={formats} /> 
+                    : null}
+            </p>
+            <p>{link}</p>
+        </div>
+        {thumb ? <img src={thumb} alt="thumbnail" width={120} /> : null}
     </div>
 }
 
@@ -107,7 +124,7 @@ export default function Home(props) {
     if (props.isError) {
         className = "error"
         imageSet = ERROR_IMAGE_SET
-        bottomInfo = <div className="stream-info">
+        bottomInfo = <div className={`${styles.streamInfo} ${styles.streamInfoError}`}>
             <p>There was a problem checking stream status. <a href={props.channelLink}>You can check Fauna&apos;s channel yourself</a>!</p>
         </div>
     } else if (props.status != STREAM_STATUS.LIVE && props.status != STREAM_STATUS.STARTING_SOON) {
@@ -134,9 +151,12 @@ export default function Home(props) {
 
         <div className={className}>
             <h1>{caption}</h1>
-            <img src={`${props.absolutePrefix}/${image}`} alt="wah" onClick={() => setImage(selectRandomImage(imageSet, image))} />
 
-            {bottomInfo}
+            {props.status == STREAM_STATUS.LIVE ? bottomInfo : null}
+
+            <img className={styles.bigImage} src={`${props.absolutePrefix}/${image}`} alt="wah" onClick={() => setImage(selectRandomImage(imageSet, image))} />
+
+            {props.status != STREAM_STATUS.LIVE ? bottomInfo : null}
 
             <footer>
                 <a href={props.channelLink}>Ceres Fauna Ch. hololive-EN</a> <br />

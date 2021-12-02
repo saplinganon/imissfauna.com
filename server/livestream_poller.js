@@ -48,11 +48,11 @@ export function extractLivestreamInfo(fromPageContent) {
 
     const videoLink = validateVideoLink(canonical.getAttribute("href"))
     if (!videoLink) {
-        return { error: null, result: { live: STREAM_STATUS.OFFLINE, title: null, videoLink: null, streamStartTime: null } }
+        return { error: null, result: { live: STREAM_STATUS.OFFLINE, title: null, videoLink: null, streamStartTime: null, thumbnail: null } }
     } 
 
     const liveTitle = dom.querySelector("meta[name='title']").getAttribute("content")
-    const basicResponse = { error: null, result: { live: STREAM_STATUS.INDETERMINATE, title: liveTitle, videoLink, streamStartTime: null } }
+    const basicResponse = { error: null, result: { live: STREAM_STATUS.INDETERMINATE, title: liveTitle, videoLink, streamStartTime: null, thumbnail: null } }
 
     const scripts = dom.querySelectorAll("script")
     let playerInfo = null
@@ -86,15 +86,25 @@ export function extractLivestreamInfo(fromPageContent) {
     const ts = playerInfo.playabilityStatus?.
         liveStreamability?.liveStreamabilityRenderer?.offlineSlate?.
         liveStreamOfflineSlateRenderer?.scheduledStartTime
-    if (ts === undefined) {
-        return basicResponse
+    if (ts !== undefined) {
+        const expectedStartTime = parseInt(ts) * 1000
+        const waitTimeLeftMS = expectedStartTime - (new Date().getTime())
+        basicResponse.result.streamStartTime = new Date(expectedStartTime)
+        if (waitTimeLeftMS > 1800 * 1000) {
+            basicResponse.result.live = STREAM_STATUS.OFFLINE
+        }
     }
 
-    const expectedStartTime = parseInt(ts) * 1000
-    const waitTimeLeftMS = expectedStartTime - (new Date().getTime())
-    basicResponse.result.streamStartTime = new Date(expectedStartTime)
-    if (waitTimeLeftMS > 1800 * 1000) {
-        basicResponse.result.live = STREAM_STATUS.OFFLINE
+    const thumbnailArray = playerInfo.videoDetails?.thumbnail?.thumbnails
+    if (thumbnailArray !== undefined && Array.isArray(thumbnailArray)) {
+        for (let i = 0; i < thumbnailArray.length; ++i) {
+            const t = thumbnailArray[i]
+            if (typeof t.width === "number" && t.width > 300 &&
+                typeof t.height === "number" && t.height > 150) {
+                basicResponse.result.thumbnail = t.url
+                break
+            }
+        }
     }
 
     return basicResponse
@@ -114,6 +124,7 @@ export async function pollLivestreamStatusDummy(unused, selectMock) {
         live: STREAM_STATUS.OFFLINE, 
         title: "Dummy dummy dummy dummy", 
         videoLink: "https://www.youtube.com/watch?v=aaaaaaaaaaa", 
+        thumbnail: "https://i.ytimg.com/vi/NFYUWfIzGyI/hqdefault_live.jpg?sqp=CNyX0YwG-oaymwEjCNACELwBSFryq4qpAxUIARUAAAAAGAElAADIQj0AgKJDeAE=&rs=AOn4CLCxZ1e-GDf_bdonIkYXkD4mNWkXIA",
         streamStartTime: new Date(Date.now() + 3600000)
     }
 
@@ -123,6 +134,7 @@ export async function pollLivestreamStatusDummy(unused, selectMock) {
         case "degraded":
             fakeResult.live = STREAM_STATUS.INDETERMINATE
             fakeResult.streamStartTime = null
+            fakeResult.thumbnail = null
             return { error: null, result: fakeResult }
         case "farout":
             fakeResult.live = STREAM_STATUS.OFFLINE
