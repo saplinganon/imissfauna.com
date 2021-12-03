@@ -130,7 +130,7 @@ export async function pollLivestreamStatusDummy(unused, selectMock) {
 
     switch (selectMock) {
         case "error": return { error: "Fake Error", result: null }
-        case "nostream": return { error: null, result: { live: STREAM_STATUS.OFFLINE, title: null, videoLink: null, streamStartTime: null } }
+        case "nostream": return { error: null, result: { live: STREAM_STATUS.OFFLINE, title: null, thumbnail: null, videoLink: null, streamStartTime: null } }
         case "degraded":
             fakeResult.live = STREAM_STATUS.INDETERMINATE
             fakeResult.streamStartTime = null
