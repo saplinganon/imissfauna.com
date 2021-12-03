@@ -12,11 +12,21 @@ const DEFAULT_FORMATS = {
     separator: " ",
 }
 
+function evaluateFormat(format, value) {
+    if (typeof format === 'function') {
+        return format(value)
+    }
+    return format.replace('%@', value)
+}
+
 export class TextCountdown extends Component {
-    constructor(props) {
-        super(props)
-        this.state = {delta: props.to - Date.now()}
-        this.formats = Object.assign({...DEFAULT_FORMATS}, props.formatStrings)
+    state = {
+        delta: this.props.to - Date.now()
+    }
+
+    formats = {
+        ...DEFAULT_FORMATS,
+        ...this.props.formatStrings
     }
 
     componentDidMount() {
@@ -34,16 +44,16 @@ export class TextCountdown extends Component {
     formattedTime(components, isDateInPast) {
         const cs = components.join(this.formats.separator)
         if (isDateInPast) {
-            return this.formats.forPast.replace("%@", cs)
+            return evaluateFormat(this.formats.forPast, cs)
         } else {
-            return this.formats.forFuture.replace("%@", cs)
+            return evaluateFormat(this.formats.forFuture, cs)
         }
     }
 
     render() {
         const isNow = this.isCloseToNow(this.state.delta), isNegative = this.state.delta < 0, effectiveDelta = Math.abs(this.state.delta)
         if (isNow) {
-            return <span className={styles.countdown}>{this.formats.immediate}</span>
+            return this.formats.immediate
         }
 
         const days = (effectiveDelta / 86400000) | 0
@@ -52,11 +62,11 @@ export class TextCountdown extends Component {
         const seconds = Math.round((effectiveDelta % 60000) / 1000)
 
         const components = []
-        if (days) components.push(this.formats.days.replace("%@", days))
-        if (hours) components.push(this.formats.hours.replace("%@", hours))
-        if (minutes) components.push(this.formats.minutes.replace("%@", minutes))
-        if (seconds) components.push(this.formats.seconds.replace("%@", seconds))
+        if (days) components.push(evaluateFormat(this.formats.days, days))
+        if (hours) components.push(evaluateFormat(this.formats.hours, hours))
+        if (minutes) components.push(evaluateFormat(this.formats.minutes, minutes))
+        if (seconds) components.push(evaluateFormat(this.formats.seconds, seconds))
 
-        return <span className={styles.countdown}>{this.formattedTime(components, isNegative)}</span> 
+        return this.formattedTime(components, isNegative)
     }
 }

@@ -1,9 +1,13 @@
 import styles from '../styles/Home.module.css'
 import Head from "next/head"
 import { STREAM_STATUS, pollLivestreamStatus, pollLivestreamStatusDummy } from "../server/livestream_poller"
+import { pollPaststreamStatus } from "../server/paststream_poller"
 import { ERROR_IMAGE_SET, HAVE_STREAM_IMAGE_SET, NO_STREAM_IMAGE_SET } from "../imagesets"
 import { useState } from "react"
 import { TextCountdown } from "../components/text_countdown"
+import getConfig from "next/config";
+
+const { publicRuntimeConfig } = getConfig();
 
 function selectRandomImage(fromSet, excludingImage) {
     let excludeIndex
@@ -18,6 +22,7 @@ function selectRandomImage(fromSet, excludingImage) {
 
 export async function getServerSideProps({ req, res, query }) {
     let apiVal
+    let pastStream
     if (process.env.USE_DUMMY_DATA === "true") {
         apiVal = await pollLivestreamStatusDummy(process.env.WATCH_CHANNEL_ID, query.mock)
     } else {
@@ -41,12 +46,15 @@ export async function getServerSideProps({ req, res, query }) {
         initialImage = selectRandomImage(HAVE_STREAM_IMAGE_SET)
     }
 
+    pastStream = await pollPaststreamStatus(process.env.WATCH_CHANNEL_ID)
+
     return { props: {
         absolutePrefix,
         initialImage,
         channelLink,
         status: result.live,
         isError: false,
+        pastStream,
         streamInfo: {
             link: result.videoLink,
             title: result.title,
@@ -108,7 +116,7 @@ function StreamInfo(props) {
         <div className={styles.vstack}>
             <p className={`${styles.streamInfoHead}`}>
                 {text} {props.status != STREAM_STATUS.LIVE && props.info?.startTime ? 
-                    <TextCountdown to={props.info.startTime} formatStrings={formats} /> 
+                    <span className={styles.countdown}><TextCountdown to={props.info.startTime} formatStrings={formats} /></span>
                     : null}
             </p>
             <p>{link}</p>
@@ -157,6 +165,21 @@ export default function Home(props) {
             <img className={styles.bigImage} src={`${props.absolutePrefix}/${image}`} alt="wah" onClick={() => setImage(selectRandomImage(imageSet, image))} />
 
             {props.status != STREAM_STATUS.LIVE ? bottomInfo : null}
+
+            {(props.status === STREAM_STATUS.OFFLINE && props.pastStream?.endActual)
+                ? <TextCountdown
+                    to={props.pastStream.endActual}
+                    formatStrings={{
+                        immediate: "",
+                        forFuture: "",
+                        forPast: `%@ without ${publicRuntimeConfig.name}`,
+                        days: (days) => (days > 1 ? `${days} days` : `${days} day`),
+                        hours: (hours) => (hours > 1 ? `${hours} hours` : `${hours} hour`),
+                        minutes: (minutes) => (minutes > 1 ? `${minutes} minutes` : `${minutes} minute`),
+                        seconds: (seconds) => (seconds > 1 ? `${seconds} seconds` : `${seconds} second`),
+                    }}
+                />
+                : null}
 
             <footer>
                 <a href={props.channelLink}>Ceres Fauna Ch. hololive-EN</a> <br />
