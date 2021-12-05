@@ -1,7 +1,6 @@
 import styles from '../styles/Home.module.css'
 import Head from "next/head"
-import { STREAM_STATUS, pollLivestreamStatus, pollLivestreamStatusDummy } from "../server/livestream_poller"
-import { pollPaststreamStatus } from "../server/paststream_poller"
+import { STREAM_STATUS } from "../common/enums"
 import { ERROR_IMAGE_SET, HAVE_STREAM_IMAGE_SET, NO_STREAM_IMAGE_SET } from "../imagesets"
 import { Component, useState } from "react"
 import { TextCountdown } from "../components/text_countdown"
@@ -26,11 +25,14 @@ function imageFromStreamStatus(status) {
 }
 
 export async function getServerSideProps({ req, res, query }) {
+    const sLSP = await import("../server/livestream_poller")
+    const sPSP = await import("../server/paststream_poller")
+
     let apiVal
     if (process.env.USE_DUMMY_DATA === "true") {
-        apiVal = await pollLivestreamStatusDummy(process.env.WATCH_CHANNEL_ID, query.mock)
+        apiVal = await sLSP.pollLivestreamStatusDummy(process.env.WATCH_CHANNEL_ID, query.mock)
     } else {
-        apiVal = await pollLivestreamStatus(process.env.WATCH_CHANNEL_ID)
+        apiVal = await sLSP.pollLivestreamStatus(process.env.WATCH_CHANNEL_ID)
         res.setHeader("Cache-Control", "max-age=0, s-maxage=90, stale-while-revalidate=180")
     }
     const { result, error } = apiVal
@@ -43,8 +45,7 @@ export async function getServerSideProps({ req, res, query }) {
         return { props: { isError: true, absolutePrefix, initialImage: selectRandomImage(ERROR_IMAGE_SET), channelLink } }
     }
 
-    let pastStreamVal
-    pastStreamVal = await pollPaststreamStatus(process.env.WATCH_CHANNEL_ID)
+    const pastStreamVal = await sPSP.pollPaststreamStatus(process.env.WATCH_CHANNEL_ID)
     const { error: pastStreamError, result: pastStreamResult } = pastStreamVal
     if (pastStreamError) {
         console.warn("paststream poll returned error:", pastStreamError)
@@ -225,7 +226,7 @@ function CommonFooter(props) {
         <small>
             Not affiliated with Fauna or hololive - <a href="https://github.com/saplinganon/imissfauna.com">Source</a>
         </small>
-        {true ? <button onClick={props.actRefreshNow}></button> : null}
+        {false ? <button onClick={props.actRefreshNow}>(Debug: Refresh Now)</button> : null}
     </footer>
 }
 

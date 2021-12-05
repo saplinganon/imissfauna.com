@@ -1,11 +1,5 @@
 import { parse } from "node-html-parser"
-
-export const STREAM_STATUS = {
-    OFFLINE: 1,
-    INDETERMINATE: 2,
-    STARTING_SOON: 3,
-    LIVE: 4,
-}
+import { STREAM_STATUS } from "../common/enums"
 
 function createPollRoute(channelID) {
     return `https://www.youtube.com/channel/${channelID}/live`
