@@ -7,22 +7,20 @@ export default async function handler(req, res) {
         return res.status(405).json({ error: true, result: null })
     }
 
-    let ytLiveVal
+    let netPromises = []
     if (process.env.USE_DUMMY_DATA === "true") {
-        ytLiveVal = await pollLivestreamStatusDummy(process.env.WATCH_CHANNEL_ID, req.query.mock)
+        netPromises.push(pollLivestreamStatusDummy(process.env.WATCH_CHANNEL_ID, req.query.mock))
     } else {
-        ytLiveVal = await pollLivestreamStatus(process.env.WATCH_CHANNEL_ID)
+        netPromises.push(pollLivestreamStatus(process.env.WATCH_CHANNEL_ID))
         res.setHeader("Cache-Control", "max-age=0, s-maxage=90, stale-while-revalidate=180")
     }
-    const { result: ytResult, error: ytError } = ytLiveVal
+    netPromises.push(pollPaststreamStatus(process.env.WATCH_CHANNEL_ID))
 
-    let pastError = null, pastResult
-    if (ytError || ytResult.live !== STREAM_STATUS.LIVE) {
-        const pastVal = await pollPaststreamStatus(process.env.WATCH_CHANNEL_ID)
-        pastError = pastVal.error
-        pastResult = pastVal.result
-    }
-    
+    const [ytLiveVal, pastVal] = await Promise.all(netPromises)
+
+    const { result: ytResult, error: ytError } = ytLiveVal
+    const { result: pastResult, error: pastError } = pastVal
+
     if (pastError || ytError) {
         console.warn("poll returned error(s):", { pastError, ytError })
     }

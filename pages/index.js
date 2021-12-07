@@ -28,14 +28,24 @@ export async function getServerSideProps({ req, res, query }) {
     const sLSP = await import("../server/livestream_poller")
     const sPSP = await import("../server/paststream_poller")
 
-    let apiVal
+    let netPromises = []
     if (process.env.USE_DUMMY_DATA === "true") {
-        apiVal = await sLSP.pollLivestreamStatusDummy(process.env.WATCH_CHANNEL_ID, query.mock)
+        netPromises.push(sLSP.pollLivestreamStatusDummy(process.env.WATCH_CHANNEL_ID, query.mock))
     } else {
-        apiVal = await sLSP.pollLivestreamStatus(process.env.WATCH_CHANNEL_ID)
+        netPromises.push(sLSP.pollLivestreamStatus(process.env.WATCH_CHANNEL_ID))
         res.setHeader("Cache-Control", "max-age=0, s-maxage=90, stale-while-revalidate=180")
     }
+
+    netPromises.push(sPSP.pollPaststreamStatus(process.env.WATCH_CHANNEL_ID))
+
+    const [apiVal, pastStreamVal] = await Promise.all(netPromises)
     const { result, error } = apiVal
+
+    const { error: pastStreamError, result: pastStreamResult } = pastStreamVal
+    if (pastStreamError) {
+        console.warn("paststream poll returned error:", pastStreamError)
+        // Error is non-blocking. Gracefully fall back to not displaying things related to past stream
+    }
 
     const absolutePrefix = process.env.PUBLIC_HOST
     const channelLink = `https://www.youtube.com/channel/${process.env.WATCH_CHANNEL_ID}`
@@ -45,22 +55,8 @@ export async function getServerSideProps({ req, res, query }) {
         return { props: { 
             showDebugBar: (process.env.USE_DUMMY_DATA === "true"),
             passDown: { absolutePrefix, channelLink }, 
-            dynamic: { isError: true, initialImage: selectRandomImage(ERROR_IMAGE_SET) } 
+            dynamic: { isError: true, initialImage: selectRandomImage(ERROR_IMAGE_SET), pastStream: pastStreamResult } 
         } }
-    }
-
-    const pastStreamVal = await sPSP.pollPaststreamStatus(process.env.WATCH_CHANNEL_ID)
-    const { error: pastStreamError, result: pastStreamResult } = pastStreamVal
-    if (pastStreamError) {
-        console.warn("paststream poll returned error:", pastStreamError)
-        // Error is non-blocking. Gracefully fall back to not displaying things related to past stream
-    }
-
-    let initialImage
-    if (result.live != STREAM_STATUS.LIVE && result.live != STREAM_STATUS.STARTING_SOON) {
-        initialImage = selectRandomImage(NO_STREAM_IMAGE_SET)
-    } else {
-        initialImage = selectRandomImage(HAVE_STREAM_IMAGE_SET)
     }
 
     return { props: {
@@ -214,6 +210,11 @@ function NoStreamLayout(props) {
 
 function ErrorLayout(props) {
     const [image, setImage] = useState(props.initialImage)
+    let pastStreamCounter = null
+    if (props.pastStream?.endActual) {
+        pastStreamCounter = <PastStreamCounter date={props.pastStream.endActual} />
+    }
+
     return <div className="error">
         <Head>
             <meta content={`${props.absolutePrefix}/${image}`} property="og:image" />
@@ -223,6 +224,7 @@ function ErrorLayout(props) {
         <div className={`${styles.streamInfo} ${styles.streamInfoError}`}>
             <p>There was a problem checking stream status. <a href={props.channelLink}>{"You can check Fauna's channel yourself"}</a>!</p>
         </div>
+        {pastStreamCounter}
         <CommonFooter channelLink={props.channelLink} actRefreshNow={props.actRefreshNow} />
     </div>
 }
