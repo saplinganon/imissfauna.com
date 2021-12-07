@@ -20,13 +20,10 @@ function evaluateFormat(format, value) {
 }
 
 export class TextCountdown extends Component {
-    state = {
-        delta: this.props.to - Date.now()
-    }
-
-    formats = {
-        ...DEFAULT_FORMATS,
-        ...this.props.formatStrings
+    constructor(props) {
+        super(props)
+        this.state = {delta: props.to - Date.now()}
+        this.formats = Object.assign({...DEFAULT_FORMATS}, props.formatStrings)
     }
 
     componentDidMount() {
@@ -67,6 +64,6 @@ export class TextCountdown extends Component {
         if (minutes) components.push(evaluateFormat(this.formats.minutes, minutes))
         if (seconds) components.push(evaluateFormat(this.formats.seconds, seconds))
 
-        return this.formattedTime(components, isNegative)
+        return <>{this.formattedTime(components, isNegative)}</>
     }
 }

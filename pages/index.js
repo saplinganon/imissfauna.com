@@ -22,7 +22,7 @@ function selectRandomImage(fromSet, excludingImage) {
 
 export async function getServerSideProps({ req, res, query }) {
     let apiVal
-    let pastStream
+    let pastStreamVal
     if (process.env.USE_DUMMY_DATA === "true") {
         apiVal = await pollLivestreamStatusDummy(process.env.WATCH_CHANNEL_ID, query.mock)
     } else {
@@ -46,7 +46,12 @@ export async function getServerSideProps({ req, res, query }) {
         initialImage = selectRandomImage(HAVE_STREAM_IMAGE_SET)
     }
 
-    pastStream = await pollPaststreamStatus(process.env.WATCH_CHANNEL_ID)
+    pastStreamVal = await pollPaststreamStatus(process.env.WATCH_CHANNEL_ID)
+    const { error: pastStreamError, result: pastStreamResult } = pastStreamVal
+    if (pastStreamError) {
+        console.warn("paststream poll returned error:", pastStreamError)
+        // Error is non-blocking. Gracefully fall back to not displaying things related to past stream
+    }
 
     return { props: {
         absolutePrefix,
@@ -54,7 +59,7 @@ export async function getServerSideProps({ req, res, query }) {
         channelLink,
         status: result.live,
         isError: false,
-        pastStream,
+        pastStream: pastStreamResult,
         streamInfo: {
             link: result.videoLink,
             title: result.title,
@@ -172,7 +177,7 @@ export default function Home(props) {
                     formatStrings={{
                         immediate: "",
                         forFuture: "",
-                        forPast: `%@ without ${publicRuntimeConfig.name}`,
+                        forPast: `%@ without Fauna`,
                         days: (days) => (days > 1 ? `${days} days` : `${days} day`),
                         hours: (hours) => (hours > 1 ? `${hours} hours` : `${hours} hour`),
                         minutes: (minutes) => (minutes > 1 ? `${minutes} minutes` : `${minutes} minute`),

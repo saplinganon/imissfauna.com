@@ -11,7 +11,7 @@ async function fetchPaststreamPage(channelID) {
         const youtubeJSON = await res.json()
         return { error: null, result: youtubeJSON }
     } catch (e) {
-        return { error: e.toString(), result: { items: [] } }
+        return { error: e.toString(), result: null }
     }
 }
 
@@ -38,10 +38,16 @@ export async function pollPaststreamStatus(channelID) {
         return { error, result: null }
     }
 
-    return extractPaststreamInfo(youtubeJSON)
+    return {
+        error: null,
+        result: extractPaststreamInfo(youtubeJSON)
+    }
 }
 
 async function pollPaststreamStatusDummy(unused) {
     const dummyData = require("./paststream_dummy_data.json")
-    return extractPaststreamInfo(dummyData)
+    return {
+        error: null,
+        result: extractPaststreamInfo(dummyData)
+    }
 }
