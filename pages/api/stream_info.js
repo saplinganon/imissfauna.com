@@ -53,9 +53,7 @@ export default async function handler(req, res) {
     }
 
     if (pastResult) {
-        responseValue.result.pastStreamData = {
-            endActual: Date.now() - 3600000 // pastResult.endActual.getTime()
-        }
+        responseValue.result.pastStreamData = pastResult
     }
 
     return res.status(200).json(responseValue)
