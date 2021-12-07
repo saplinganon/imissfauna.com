@@ -1,34 +1,62 @@
+import { STREAM_STATUS } from "../../common/enums"
 import { pollLivestreamStatus, pollLivestreamStatusDummy } from "../../server/livestream_poller"
+import { pollPaststreamStatus } from "../../server/paststream_poller"
 
 export default async function handler(req, res) {
     if (req.method !== "GET") {
         return res.status(405).json({ error: true, result: null })
     }
 
-    let apiVal
+    let ytLiveVal
     if (process.env.USE_DUMMY_DATA === "true") {
-        apiVal = await pollLivestreamStatusDummy(process.env.WATCH_CHANNEL_ID, req.query.mock)
+        ytLiveVal = await pollLivestreamStatusDummy(process.env.WATCH_CHANNEL_ID, req.query.mock)
     } else {
-        apiVal = await pollLivestreamStatus(process.env.WATCH_CHANNEL_ID)
+        ytLiveVal = await pollLivestreamStatus(process.env.WATCH_CHANNEL_ID)
         res.setHeader("Cache-Control", "max-age=0, s-maxage=90, stale-while-revalidate=180")
     }
-    const { result, error } = apiVal
+    const { result: ytResult, error: ytError } = ytLiveVal
 
-    if (error) {
-        console.warn("livestream poll returned error:", error)
+    let pastError = null, pastResult
+    if (ytError || (ytResult.live !== STREAM_STATUS.LIVE && ytResult.live !== STREAM_STATUS.STARTING_SOON)) {
+        const pastVal = await pollPaststreamStatus(process.env.WATCH_CHANNEL_ID)
+        pastError = pastVal.error
+        pastResult = pastVal.result
+    }
+    
+    if (pastError || ytError) {
+        console.warn("poll returned error(s):", { pastError, ytError })
+    }
+
+    if (pastError && ytError) {
+        // No useful information
         return res.status(200).json({ error: true, result: null })
     }
 
-    return res.status(200).json({
+    let responseValue = {
         error: false, 
         result: {
-            status: result.live,
+            ytStreamData: null,
+            pastStreamData: null,
+        }
+    }
+
+    if (ytResult) {
+        responseValue.result.ytStreamData = {
+            status: ytResult.live,
             streamInfo: {
-                link: result.videoLink,
-                title: result.title,
-                startTime: result.streamStartTime?.getTime?.() || null,
-                thumbnail: result.thumbnail
+                link: ytResult.videoLink,
+                title: ytResult.title,
+                startTime: ytResult.streamStartTime?.getTime?.() || null,
+                thumbnail: ytResult.thumbnail
             }
         }
-    })
+    }
+
+    if (pastResult) {
+        responseValue.result.pastStreamData = {
+            endActual: Date.now() - 3600000 // pastResult.endActual.getTime()
+        }
+    }
+
+    return res.status(200).json(responseValue)
 }

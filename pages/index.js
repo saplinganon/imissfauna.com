@@ -262,16 +262,22 @@ export default class Home extends Component {
                 return json.result
             })
             .then((jsBody) => {
-                const nextState = { isError: false, status: jsBody.status, streamInfo: jsBody.streamInfo, initialImage: null }
-                // If the stream status changes, the render layout we use can also change, which will reset the
-                // image to the initialImage. The code here is to make sure the initialImage is correct
-                // for the stream status.
-                // It is set to null above, but this is fine because it will only be looked at on layout changes.
-                if (nextState.status !== this.state.status) {
-                    nextState.initialImage = imageFromStreamStatus(nextState.status)
+                if (jsBody.ytStreamData) {
+                    const nextState = { isError: false, status: jsBody.ytStreamData.status, streamInfo: jsBody.ytStreamData.streamInfo, initialImage: null }
+                    // If the stream status changes, the render layout we use can also change, which will reset the
+                    // image to the initialImage. The code here is to make sure the initialImage is correct
+                    // for the stream status.
+                    // It is set to null above, but this is fine because it will only be looked at on layout changes.
+                    if (nextState.status !== this.state.status) {
+                        nextState.initialImage = imageFromStreamStatus(nextState.status)
+                    }
+
+                    this.setState(nextState)
                 }
 
-                this.setState(nextState)
+                if (jsBody.pastStreamData) {
+                    this.setState({ pastStream: jsBody.pastStreamData })
+                }
             })
             .catch((r) => {
                 console.error("Error refreshing:", r)
