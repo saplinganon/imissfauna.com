@@ -42,7 +42,10 @@ export async function getServerSideProps({ req, res, query }) {
 
     if (error) {
         console.warn("livestream poll returned error:", error)
-        return { props: { isError: true, absolutePrefix, initialImage: selectRandomImage(ERROR_IMAGE_SET), channelLink } }
+        return { props: { 
+            passDown: { absolutePrefix, channelLink }, 
+            dynamic: { isError: true, initialImage: selectRandomImage(ERROR_IMAGE_SET) } 
+        } }
     }
 
     const pastStreamVal = await sPSP.pollPaststreamStatus(process.env.WATCH_CHANNEL_ID)
