@@ -43,6 +43,7 @@ export async function getServerSideProps({ req, res, query }) {
     if (error) {
         console.warn("livestream poll returned error:", error)
         return { props: { 
+            showDebugBar: (process.env.USE_DUMMY_DATA === "true"),
             passDown: { absolutePrefix, channelLink }, 
             dynamic: { isError: true, initialImage: selectRandomImage(ERROR_IMAGE_SET) } 
         } }
@@ -63,6 +64,7 @@ export async function getServerSideProps({ req, res, query }) {
     }
 
     return { props: {
+        showDebugBar: (process.env.USE_DUMMY_DATA === "true"),
         passDown: {
             absolutePrefix,
             channelLink,
@@ -143,6 +145,20 @@ function StreamInfo(props) {
     </div>
 }
 
+function PastStreamCounter(props) {
+    const formats = {
+        immediate: "", forFuture: "", forPast: `%@ without Fauna`,
+        days: (days) => (days > 1 ? `${days} days` : `${days} day`),
+        hours: (hours) => (hours > 1 ? `${hours} hours` : `${hours} hour`),
+        minutes: (minutes) => (minutes > 1 ? `${minutes} minutes` : `${minutes} minute`),
+        seconds: (seconds) => (seconds > 1 ? `${seconds} seconds` : `${seconds} second`),
+        separator: ", "
+    }
+    return <div className={`${styles.streamInfo} ${styles.pastStreamInfo}`}>
+        <p className={styles.countdown}><TextCountdown to={props.date} formatStrings={formats} /></p>
+    </div>
+}
+
 function CommonMetadata() {
     return <Head>
         <title>I MISS FAUNA</title>
@@ -155,71 +171,59 @@ function CommonMetadata() {
 
 function LiveOrStartingSoonLayout(props) {
     const [image, setImage] = useState(props.initialImage)
-    return <div className={styles.site}>
-        <CommonMetadata />
+    let pastStreamCounter = null
+    if (props.status !== STREAM_STATUS.LIVE && props.pastStream?.endActual) {
+        pastStreamCounter = <PastStreamCounter date={props.pastStream.endActual} />
+    }
+
+    return <div className="comfy">
         <Head>
             <meta content={createEmbedDescription(props.status, props.streamInfo)} property="og:description" />
             <meta content={`${props.absolutePrefix}/${image}`} property="og:image" />
         </Head>
 
-        <div className="comfy">
-            <h1>{"I Don't Miss Fauna"}</h1>
-            <StreamInfo status={props.status} info={props.streamInfo} />
-            <img className={styles.bigImage} src={`${props.absolutePrefix}/${image}`} alt="wah" 
-                onClick={() => setImage(selectRandomImage(HAVE_STREAM_IMAGE_SET, image))} />
-            <CommonFooter channelLink={props.channelLink} actRefreshNow={props.actRefreshNow} />
-        </div>
+        <h1>{"I Don't Miss Fauna"}</h1>
+        <StreamInfo status={props.status} info={props.streamInfo} />
+        <img className={styles.bigImage} src={`${props.absolutePrefix}/${image}`} alt="wah" 
+            onClick={() => setImage(selectRandomImage(HAVE_STREAM_IMAGE_SET, image))} />
+        {pastStreamCounter}
+        <CommonFooter channelLink={props.channelLink} actRefreshNow={props.actRefreshNow} />
     </div>
 }
 
 function NoStreamLayout(props) {
     const [image, setImage] = useState(props.initialImage)
-    return <div className={styles.site}>
-        <CommonMetadata />
+    let pastStreamCounter = null
+    if (props.pastStream?.endActual) {
+        pastStreamCounter = <PastStreamCounter date={props.pastStream.endActual} />
+    }
+
+    return <div className="miss-her">
         <Head>
             <meta content={createEmbedDescription(props.status, props.streamInfo)} property="og:description" />
             <meta content={`${props.absolutePrefix}/${image}`} property="og:image" />
         </Head>
 
-        <div className="miss-her">
-            <img className={styles.bigImage} src={`${props.absolutePrefix}/${image}`} alt="wah" 
-                onClick={() => setImage(selectRandomImage(NO_STREAM_IMAGE_SET, image))} />
-            <StreamInfo status={props.status} info={props.streamInfo} />
-            {(props.status === STREAM_STATUS.OFFLINE && props.pastStream?.endActual)
-                ? <TextCountdown
-                    to={props.pastStream.endActual}
-                    formatStrings={{
-                        immediate: "",
-                        forFuture: "",
-                        forPast: `%@ without Fauna`,
-                        days: (days) => (days > 1 ? `${days} days` : `${days} day`),
-                        hours: (hours) => (hours > 1 ? `${hours} hours` : `${hours} hour`),
-                        minutes: (minutes) => (minutes > 1 ? `${minutes} minutes` : `${minutes} minute`),
-                        seconds: (seconds) => (seconds > 1 ? `${seconds} seconds` : `${seconds} second`),
-                    }}
-                />
-                : null}
-            <CommonFooter channelLink={props.channelLink} actRefreshNow={props.actRefreshNow} />
-        </div>
+        <img className={styles.bigImage} src={`${props.absolutePrefix}/${image}`} alt="wah" 
+            onClick={() => setImage(selectRandomImage(NO_STREAM_IMAGE_SET, image))} />
+        <StreamInfo status={props.status} info={props.streamInfo} />
+        {pastStreamCounter}
+        <CommonFooter channelLink={props.channelLink} actRefreshNow={props.actRefreshNow} />
     </div>
 }
 
 function ErrorLayout(props) {
     const [image, setImage] = useState(props.initialImage)
-    return <div className={styles.site}>
-        <CommonMetadata />
+    return <div className="error">
         <Head>
             <meta content={`${props.absolutePrefix}/${image}`} property="og:image" />
         </Head>
-
-        <div className="error">
-            <img className={styles.bigImage} src={`${props.absolutePrefix}/${image}`} alt="wah" 
-                onClick={() => setImage(selectRandomImage(ERROR_IMAGE_SET, image))} />
-            <div className={`${styles.streamInfo} ${styles.streamInfoError}`}>
-                <p>There was a problem checking stream status. <a href={props.channelLink}>{"You can check Fauna's channel yourself"}</a>!</p>
-            </div>
-            <CommonFooter channelLink={props.channelLink} actRefreshNow={props.actRefreshNow} />
+        <img className={styles.bigImage} src={`${props.absolutePrefix}/${image}`} alt="wah" 
+            onClick={() => setImage(selectRandomImage(ERROR_IMAGE_SET, image))} />
+        <div className={`${styles.streamInfo} ${styles.streamInfoError}`}>
+            <p>There was a problem checking stream status. <a href={props.channelLink}>{"You can check Fauna's channel yourself"}</a>!</p>
         </div>
+        <CommonFooter channelLink={props.channelLink} actRefreshNow={props.actRefreshNow} />
     </div>
 }
 
@@ -229,7 +233,6 @@ function CommonFooter(props) {
         <small>
             Not affiliated with Fauna or hololive - <a href="https://github.com/saplinganon/imissfauna.com">Source</a>
         </small>
-        {false ? <button onClick={props.actRefreshNow}>(Debug: Refresh Now)</button> : null}
     </footer>
 }
 
@@ -238,6 +241,7 @@ export default class Home extends Component {
         super(props)
         this.state = {...props.dynamic}
         this.isRequestInFlight = false
+        this.queryString = ""
         this.actRefreshNow = () => this.refresh()
     }
 
@@ -256,7 +260,7 @@ export default class Home extends Component {
         }
 
         this.isRequestInFlight = true
-        fetch("/api/stream_info")
+        fetch("/api/stream_info" + this.queryString)
             .then((res) => res.json())
             .then((json) => {
                 if (json.error !== false) {
@@ -291,18 +295,41 @@ export default class Home extends Component {
             })
     }
 
+    debugBar() {
+        return <div>
+            Set API result flavor:
+            <button onClick={() => { this.queryString = "?mock=live" }}>Live</button>
+            <button onClick={() => { this.queryString = "?mock=soon" }}>Soon</button>
+            <button onClick={() => { this.queryString = "?mock=farout" }}>Early Frame</button>
+            <button onClick={() => { this.queryString = "?mock=nostream" }}>No Stream</button>
+            <button onClick={() => { this.queryString = "?mock=error" }}>Error</button>
+            <button onClick={this.actRefreshNow}>(Refresh Now)</button>
+        </div>
+    }
+
     render() {
+        let layout
         if (this.state.isError) {
-            return <ErrorLayout actRefreshNow={this.actRefreshNow} {...this.props.passDown} {...this.state} />
+            layout = <ErrorLayout actRefreshNow={this.actRefreshNow} {...this.props.passDown} {...this.state} />
+        } else {
+            switch (this.state.status) {
+                case STREAM_STATUS.LIVE:
+                case STREAM_STATUS.STARTING_SOON:
+                    layout = <LiveOrStartingSoonLayout actRefreshNow={this.actRefreshNow} {...this.props.passDown} {...this.state} />
+                    break
+                case STREAM_STATUS.OFFLINE:
+                case STREAM_STATUS.INDETERMINATE:
+                    layout = <NoStreamLayout actRefreshNow={this.actRefreshNow} {...this.props.passDown} {...this.state} />
+                    break
+            }
         }
 
-        switch (this.state.status) {
-            case STREAM_STATUS.LIVE:
-            case STREAM_STATUS.STARTING_SOON:
-                return <LiveOrStartingSoonLayout actRefreshNow={this.actRefreshNow} {...this.props.passDown} {...this.state} />
-            case STREAM_STATUS.OFFLINE:
-            case STREAM_STATUS.INDETERMINATE:
-                return <NoStreamLayout actRefreshNow={this.actRefreshNow} {...this.props.passDown} {...this.state} />
-        }
+        if (!layout) throw "Layout not set."
+
+        return <div className={styles.site}>
+            <CommonMetadata />
+            {layout}
+            {this.props.showDebugBar ? this.debugBar() : null}
+        </div>
     }
 }

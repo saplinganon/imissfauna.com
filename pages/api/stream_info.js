@@ -17,7 +17,7 @@ export default async function handler(req, res) {
     const { result: ytResult, error: ytError } = ytLiveVal
 
     let pastError = null, pastResult
-    if (ytError || (ytResult.live !== STREAM_STATUS.LIVE && ytResult.live !== STREAM_STATUS.STARTING_SOON)) {
+    if (ytError || ytResult.live !== STREAM_STATUS.LIVE) {
         const pastVal = await pollPaststreamStatus(process.env.WATCH_CHANNEL_ID)
         pastError = pastVal.error
         pastResult = pastVal.result

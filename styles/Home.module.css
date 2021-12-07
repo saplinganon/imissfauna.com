@@ -91,6 +91,16 @@
     margin: 0;
 }
 
+.pastStreamInfo {
+    background: rgb(174, 250, 197);
+    border-color: rgb(130, 206, 147);
+    justify-content: center;
+}
+
+.streamInfo + .pastStreamInfo {
+    margin-top: -0.8rem;
+}
+
 .countdown {
     text-transform: none;
 }
