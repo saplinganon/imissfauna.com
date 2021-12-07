@@ -5,9 +5,6 @@ import { pollPaststreamStatus } from "../server/paststream_poller"
 import { ERROR_IMAGE_SET, HAVE_STREAM_IMAGE_SET, NO_STREAM_IMAGE_SET } from "../imagesets"
 import { useState } from "react"
 import { TextCountdown } from "../components/text_countdown"
-import getConfig from "next/config";
-
-const { publicRuntimeConfig } = getConfig();
 
 function selectRandomImage(fromSet, excludingImage) {
     let excludeIndex
@@ -22,7 +19,6 @@ function selectRandomImage(fromSet, excludingImage) {
 
 export async function getServerSideProps({ req, res, query }) {
     let apiVal
-    let pastStreamVal
     if (process.env.USE_DUMMY_DATA === "true") {
         apiVal = await pollLivestreamStatusDummy(process.env.WATCH_CHANNEL_ID, query.mock)
     } else {
@@ -46,6 +42,7 @@ export async function getServerSideProps({ req, res, query }) {
         initialImage = selectRandomImage(HAVE_STREAM_IMAGE_SET)
     }
 
+    let pastStreamVal
     pastStreamVal = await pollPaststreamStatus(process.env.WATCH_CHANNEL_ID)
     const { error: pastStreamError, result: pastStreamResult } = pastStreamVal
     if (pastStreamError) {
