@@ -50,7 +50,7 @@ export class TextCountdown extends Component {
     render() {
         const isNow = this.isCloseToNow(this.state.delta), isNegative = this.state.delta < 0, effectiveDelta = Math.abs(this.state.delta)
         if (isNow) {
-            return this.formats.immediate
+            return <>this.formats.immediate</>
         }
 
         const days = (effectiveDelta / 86400000) | 0
