@@ -89,9 +89,10 @@ export async function getServerSideProps({ req, res, query }) {
 
     return { props: {
         showDebugBar: (process.env.USE_DUMMY_DATA === "true"),
+        initialRefreshTime: 5,
         passDown: {
             absolutePrefix,
-            channelLink,
+            channelLink
         },
         dynamic: {
             initialImage: imageFromStreamStatus(result.live),
@@ -273,11 +274,23 @@ export default class Home extends Component {
         this.state = {...props.dynamic}
         this.isRequestInFlight = false
         this.queryString = ""
+        this.mounted = false
         this.actRefreshNow = () => this.refresh()
     }
 
     componentDidMount() {
-        this.timer = setInterval(() => this.refresh(), 90 * 1000)
+        this.mounted = true
+        if (this.props.initialRefreshTime) {
+            setTimeout(() => {
+                if (this.mounted) {
+                    this.refresh()
+                    this.timer = setInterval(() => this.refresh(), 90 * 1000)
+                }
+            }, this.props.initialRefreshTime * 1000)
+        } else {
+            this.timer = setInterval(() => this.refresh(), 90 * 1000)
+        }
+        
         //this is specifically not in refresh to avoid embedding in HTML
         this.setState({
             usedImageSet: scrambledImageSet(this.state)
@@ -285,6 +298,7 @@ export default class Home extends Component {
     }
 
     componentWillUnmount() {
+        this.mounted = false
         clearInterval(this.timer)
     }
 
