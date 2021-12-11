@@ -1,0 +1,279 @@
+{
+  "kind": "youtube#videoListResponse",
+  "etag": "ebhyoaN3refepmIqs9fFDIp0B5o",
+  "items": [
+    {
+      "kind": "youtube#video",
+      "etag": "kLxym9B2cXkWjnMsbcDRsRNOCsc",
+      "id": "oTnp-CGoLoI",
+      "snippet": {
+        "publishedAt": "2021-12-11T15:46:33Z",
+        "channelId": "UCgmPnx-EEeOrZSg5Tiw7ZRQ",
+        "title": "≪MEMBERS ONLY≫ NICHIJOU EP 1 -3 WATCH-A-LONG",
+        "description": "LESSS GOOOOOOOOOO TEAM YUUKO\n\n#holoCouncil\n#hololiveEnglish\n\n≪HASHTAGS≫\n\nLIVE: #enterbaelz/#ベール登場　\nMUSIC:#MADDOOFS\nFANART:#illustrayBAE/#ベーアート\nMEME:#YABAEL/#ヤベール\nFAN-NAME: #baerats (brats)\n\n≪TWITTER≫\nhttps://twitter.com/hakosbaelz\n@hakosbaelz\n\n««-------------- ≪ °◇◆◇° ≫ --------------»»\n\n-Tsukumo Sana-\n[YouTube] https://t.co/rmtApAWdl3?amp=1\n[Twitter] https://twitter.com/tsukumosana\n\n-Ceres Fauna-\n[YouTube] https://t.co/lzWsu2S9PQ?amp=1\n[Twitter] https://twitter.com/ceresfauna\n\n-Ouro Kronii-\n[YouTube] https://t.co/P3BX2MUiCX?amp=1\n[Twitter] https://twitter.com/ourokronii\n\n-Nanashi Mumei-\n[YouTube] https://t.co/oO4kBazKMv?amp=1\n[Twitter] https://twitter.com/nanashimumei_en\n\n««-------------- ≪ °◇◆◇° ≫ --------------»»\n\n≪CREDITS≫\n\n使用BGM \n□DOVA-SYNDROME 　\nHP：https://dova-s.jp/\nLicense : https://dova-s.jp/_contents/license/\n\n««-------------- ≪ °◇◆◇° ≫ --------------»»\n\nThe only rules at this party\n\nWelcome to the Fun house! Please follow these rules so we can have the ultimate fun!\n\n1. Be Nice or get bonked. \n2. If you do see spam or trolling, don’t respond. Block report and ignore. \n3. Talk in relation to stream content. Please don’t bring up unrelated topics or have personal conversations. \n4. Don’t bring up other streamers/streams unless I do first.\n5. Further, don’t talk about me or my stream in another streamer’s chat. \n6. HAVE FUN!! All languages are welcome!!!\n\n««-------------- ≪ °◇◆◇° ≫ --------------»»\n\n[Fan Work Guidelines]\nhttps://en.hololive.tv/terms\n\n««-------------- ≪ °◇◆◇° ≫ --------------»»\n\n[Official Online Shop]\nhttps://hololive.booth.pm/\n\n[Holoschedule] (Check all members streaming schedules)\nhttps://schedule.hololive.tv/#hololive\n\n««-------------- ≪ °◇◆◇° ≫ --------------»»\n\n[Hololive Production]\n・Hololive English YouTube Channel: https://t.co/LcYDgFF9V0?amp=1\n・Hololive Production Official Twitter: https://twitter.com/hololivetv\n・Hololive English Official Twitter: https://twitter.com/hololive_En\n・Hololive English Official Reddit: https://www.reddit.com/r/Hololive/",
+        "thumbnails": {
+          "default": {
+            "url": "https://i.ytimg.com/vi/oTnp-CGoLoI/default_live.jpg",
+            "width": 120,
+            "height": 90
+          },
+          "medium": {
+            "url": "https://i.ytimg.com/vi/oTnp-CGoLoI/mqdefault_live.jpg",
+            "width": 320,
+            "height": 180
+          },
+          "high": {
+            "url": "https://i.ytimg.com/vi/oTnp-CGoLoI/hqdefault_live.jpg",
+            "width": 480,
+            "height": 360
+          },
+          "standard": {
+            "url": "https://i.ytimg.com/vi/oTnp-CGoLoI/sddefault_live.jpg",
+            "width": 640,
+            "height": 480
+          },
+          "maxres": {
+            "url": "https://i.ytimg.com/vi/oTnp-CGoLoI/maxresdefault_live.jpg",
+            "width": 1280,
+            "height": 720
+          }
+        },
+        "channelTitle": "Hakos Baelz Ch. hololive-EN",
+        "tags": [
+          "#holoCouncil"
+        ],
+        "categoryId": "24",
+        "liveBroadcastContent": "upcoming",
+        "localized": {
+          "title": "≪MEMBERS ONLY≫ NICHIJOU EP 1 -3 WATCH-A-LONG",
+          "description": "LESSS GOOOOOOOOOO TEAM YUUKO\n\n#holoCouncil\n#hololiveEnglish\n\n≪HASHTAGS≫\n\nLIVE: #enterbaelz/#ベール登場　\nMUSIC:#MADDOOFS\nFANART:#illustrayBAE/#ベーアート\nMEME:#YABAEL/#ヤベール\nFAN-NAME: #baerats (brats)\n\n≪TWITTER≫\nhttps://twitter.com/hakosbaelz\n@hakosbaelz\n\n««-------------- ≪ °◇◆◇° ≫ --------------»»\n\n-Tsukumo Sana-\n[YouTube] https://t.co/rmtApAWdl3?amp=1\n[Twitter] https://twitter.com/tsukumosana\n\n-Ceres Fauna-\n[YouTube] https://t.co/lzWsu2S9PQ?amp=1\n[Twitter] https://twitter.com/ceresfauna\n\n-Ouro Kronii-\n[YouTube] https://t.co/P3BX2MUiCX?amp=1\n[Twitter] https://twitter.com/ourokronii\n\n-Nanashi Mumei-\n[YouTube] https://t.co/oO4kBazKMv?amp=1\n[Twitter] https://twitter.com/nanashimumei_en\n\n««-------------- ≪ °◇◆◇° ≫ --------------»»\n\n≪CREDITS≫\n\n使用BGM \n□DOVA-SYNDROME 　\nHP：https://dova-s.jp/\nLicense : https://dova-s.jp/_contents/license/\n\n««-------------- ≪ °◇◆◇° ≫ --------------»»\n\nThe only rules at this party\n\nWelcome to the Fun house! Please follow these rules so we can have the ultimate fun!\n\n1. Be Nice or get bonked. \n2. If you do see spam or trolling, don’t respond. Block report and ignore. \n3. Talk in relation to stream content. Please don’t bring up unrelated topics or have personal conversations. \n4. Don’t bring up other streamers/streams unless I do first.\n5. Further, don’t talk about me or my stream in another streamer’s chat. \n6. HAVE FUN!! All languages are welcome!!!\n\n««-------------- ≪ °◇◆◇° ≫ --------------»»\n\n[Fan Work Guidelines]\nhttps://en.hololive.tv/terms\n\n««-------------- ≪ °◇◆◇° ≫ --------------»»\n\n[Official Online Shop]\nhttps://hololive.booth.pm/\n\n[Holoschedule] (Check all members streaming schedules)\nhttps://schedule.hololive.tv/#hololive\n\n««-------------- ≪ °◇◆◇° ≫ --------------»»\n\n[Hololive Production]\n・Hololive English YouTube Channel: https://t.co/LcYDgFF9V0?amp=1\n・Hololive Production Official Twitter: https://twitter.com/hololivetv\n・Hololive English Official Twitter: https://twitter.com/hololive_En\n・Hololive English Official Reddit: https://www.reddit.com/r/Hololive/"
+        }
+      },
+      "contentDetails": {
+        "duration": "P0D",
+        "dimension": "2d",
+        "definition": "sd",
+        "caption": "false",
+        "licensedContent": true,
+        "contentRating": {},
+        "projection": "rectangular"
+      },
+      "status": {
+        "uploadStatus": "uploaded",
+        "privacyStatus": "unlisted",
+        "license": "youtube",
+        "embeddable": true,
+        "publicStatsViewable": true,
+        "madeForKids": false
+      },
+      "liveStreamingDetails": {
+        "scheduledStartTime": "2021-12-12T02:00:00Z",
+        "activeLiveChatId": "Cg0KC29UbnAtQ0dvTG9JKicKGFVDZ21QbngtRUVlT3JaU2c1VGl3N1pSURILb1RucC1DR29Mb0k"
+      }
+    },
+    {
+      "kind": "youtube#video",
+      "etag": "h5uWetIeFETtmkuNPXnFoOuL9BM",
+      "id": "wM_J4K2ZeBU",
+      "snippet": {
+        "publishedAt": "2021-12-09T06:39:54Z",
+        "channelId": "UCO_aKKYxn4tvrqPjcTzZ6EQ",
+        "title": "【ASMR】 Ear Cleaning & Oil Massage Treatment For Saplings 🌱",
+        "description": "Fauna gives your sapling leaves a special cleaning & oil massage!\n\n【 Timestamps 】\n✿ 0:00 - Konfauna~ Sapling inspection!\n✿ 4:47 - brushing your leaves clean with soft brushes\n✿ 12:06 - ear cleaning (scratchy ear pick) (L)\n✿ 16:22 - ear cleaning (scratchy ear pick) (R)\n✿ 22:02 - ear cleaning (fluffy ear pick)\n✿ 33:18 - ear blowing\n✿ 40:22 - a little encouragement for you!\n✿ 41:23 - oil massage\n✿ 49:07 - you got this, my perfect sapling!\n\n༻━━━༺ .⋅ ✧ ⋅. ༻━━━༺\n\n【CREDITS】\nIllustration: マコミック (https://twitter.com/maccormick_4_4)\nLogo: ごごん (https://twitter.com/gogon_illust)\n\n✿ Hashtags ✿\nLIVE: #faunline ART: #FineFaunart\n\n✿ Twitter ✿\nhttps://twitter.com/ceresfauna\n@ceresfauna\n\n༻━━━༺ .⋅ ✧ ⋅. ༻━━━༺\n\n[Fan Work Guidelines]\nhttps://en.hololive.tv/terms\n\n༻━━━༺ .⋅ ✧ ⋅. ༻━━━༺\n\n[Official Online Shop]\nhttps://hololive.booth.pm/\n\n[Holoschedule] (Check all members streaming schedules)\nhttps://schedule.hololive.tv/#hololive\n\n༻━━━༺ .⋅ ✧ ⋅. ༻━━━༺\n\n[Hololive Production]\n・Hololive English YouTube Channel: https://t.co/LcYDgFF9V0?amp=1\n・Hololive Production Official Twitter: https://twitter.com/hololivetv\n・Hololive English Official Twitter: https://twitter.com/hololive_En\n・Hololive English Official Reddit: https://www.reddit.com/r/Hololive/\n\n༻━━━༺ .⋅ ✧ ⋅. ༻━━━༺\n\n#holoCouncil\n#hololiveEnglish",
+        "thumbnails": {
+          "default": {
+            "url": "https://i.ytimg.com/vi/wM_J4K2ZeBU/default.jpg",
+            "width": 120,
+            "height": 90
+          },
+          "medium": {
+            "url": "https://i.ytimg.com/vi/wM_J4K2ZeBU/mqdefault.jpg",
+            "width": 320,
+            "height": 180
+          },
+          "high": {
+            "url": "https://i.ytimg.com/vi/wM_J4K2ZeBU/hqdefault.jpg",
+            "width": 480,
+            "height": 360
+          },
+          "standard": {
+            "url": "https://i.ytimg.com/vi/wM_J4K2ZeBU/sddefault.jpg",
+            "width": 640,
+            "height": 480
+          },
+          "maxres": {
+            "url": "https://i.ytimg.com/vi/wM_J4K2ZeBU/maxresdefault.jpg",
+            "width": 1280,
+            "height": 720
+          }
+        },
+        "channelTitle": "Ceres Fauna Ch. hololive-EN",
+        "categoryId": "24",
+        "liveBroadcastContent": "upcoming",
+        "localized": {
+          "title": "【ASMR】 Ear Cleaning & Oil Massage Treatment For Saplings 🌱",
+          "description": "Fauna gives your sapling leaves a special cleaning & oil massage!\n\n【 Timestamps 】\n✿ 0:00 - Konfauna~ Sapling inspection!\n✿ 4:47 - brushing your leaves clean with soft brushes\n✿ 12:06 - ear cleaning (scratchy ear pick) (L)\n✿ 16:22 - ear cleaning (scratchy ear pick) (R)\n✿ 22:02 - ear cleaning (fluffy ear pick)\n✿ 33:18 - ear blowing\n✿ 40:22 - a little encouragement for you!\n✿ 41:23 - oil massage\n✿ 49:07 - you got this, my perfect sapling!\n\n༻━━━༺ .⋅ ✧ ⋅. ༻━━━༺\n\n【CREDITS】\nIllustration: マコミック (https://twitter.com/maccormick_4_4)\nLogo: ごごん (https://twitter.com/gogon_illust)\n\n✿ Hashtags ✿\nLIVE: #faunline ART: #FineFaunart\n\n✿ Twitter ✿\nhttps://twitter.com/ceresfauna\n@ceresfauna\n\n༻━━━༺ .⋅ ✧ ⋅. ༻━━━༺\n\n[Fan Work Guidelines]\nhttps://en.hololive.tv/terms\n\n༻━━━༺ .⋅ ✧ ⋅. ༻━━━༺\n\n[Official Online Shop]\nhttps://hololive.booth.pm/\n\n[Holoschedule] (Check all members streaming schedules)\nhttps://schedule.hololive.tv/#hololive\n\n༻━━━༺ .⋅ ✧ ⋅. ༻━━━༺\n\n[Hololive Production]\n・Hololive English YouTube Channel: https://t.co/LcYDgFF9V0?amp=1\n・Hololive Production Official Twitter: https://twitter.com/hololivetv\n・Hololive English Official Twitter: https://twitter.com/hololive_En\n・Hololive English Official Reddit: https://www.reddit.com/r/Hololive/\n\n༻━━━༺ .⋅ ✧ ⋅. ༻━━━༺\n\n#holoCouncil\n#hololiveEnglish"
+        }
+      },
+      "contentDetails": {
+        "duration": "PT50M",
+        "dimension": "2d",
+        "definition": "hd",
+        "caption": "false",
+        "licensedContent": true,
+        "contentRating": {},
+        "projection": "rectangular"
+      },
+      "status": {
+        "uploadStatus": "processed",
+        "privacyStatus": "public",
+        "license": "youtube",
+        "embeddable": true,
+        "publicStatsViewable": true,
+        "madeForKids": false
+      },
+      "liveStreamingDetails": {
+        "scheduledStartTime": "2021-12-12T02:00:00Z",
+        "activeLiveChatId": "Cg0KC3dNX0o0SzJaZUJVKicKGFVDT19hS0tZeG40dHZycVBqY1R6WjZFURILd01fSjRLMlplQlU"
+      }
+    },
+    {
+      "kind": "youtube#video",
+      "etag": "MfvN1CupA_t9GUGhd5RdT7nU1kY",
+      "id": "b4DYJ7-1IQA",
+      "snippet": {
+        "publishedAt": "2021-12-10T20:48:11Z",
+        "channelId": "UCO_aKKYxn4tvrqPjcTzZ6EQ",
+        "title": "【Watchalong】 Komi Can't Communicate #holoCouncil",
+        "description": "Watching episodes 4, 5, and 6 of Komi Can't Communicate!\n\n✿ Artist Credits ✿\nThumbnail artist: https://twitter.com/Shaymindango\nBG is from Clip Studio Paint\nThank you so much!! 💚\n\n✿ Hashtags ✿\nLIVE: #faunline ART: #FineFaunart\n\n✿ Twitter ✿\nhttps://twitter.com/ceresfauna\n@ceresfauna\n\n༻━━━༺ .⋅ ✧ ⋅. ༻━━━༺\n\n 【Tsukumo Sana】\n[YouTube] https://t.co/rmtApAWdl3?amp=1\n[Twitter] https://twitter.com/tsukumosana\n\n 【Ouro Kronii】\n[YouTube] https://t.co/P3BX2MUiCX?amp=1\n[Twitter] https://twitter.com/ourokronii\n\n 【Nanashi Mumei】\n[YouTube] https://t.co/oO4kBazKMv?amp=1\n[Twitter] https://twitter.com/nanashimumei_en\n\n 【Hakos Baelz 】\n[YouTube] https://t.co/X17xhp1Bty?amp=1\n[Twitter] https://twitter.com/hakosbaelz\n\n༻━━━༺ .⋅ ✧ ⋅. ༻━━━༺\n\n【 FauForest Rules! 】\n\n► Be kind and respectful to everyone here! Don’t spam or troll.\n► If you see spam or trolling, don’t respond. Just block, report, and ignore those comments. \n► Talk about the stream, but please don’t bring up unrelated topics or have personal conversations.\n► Don’t bring up other streamers or streams unless I mention them first.\n► Similarly, don’t talk about me or my stream in other streamers’ chat.\n► Try your best not to backseat. I like to enjoy games at my own pace, and I think part of the fun is watching me struggle, so please refrain from offering advice unless I specifically ask for help!\n\nAs long as you follow the rules above, you can chat in any language.\n\n༻━━━༺ .⋅ ✧ ⋅. ༻━━━༺\n\n【CREDITS】\nStream Layouts: Melonturtle (https://twitter.com/Melonturtle_)\nLogo: ごごん (https://twitter.com/gogon_illust)\nCustom BGM: Arkhand (https://twitter.com/the_arkhand)\nEmotes: Maerie (https://twitter.com/maeriette)\nStinger Transition: UWU Media (https://twitter.com/uwumedia)\n\n使用BGM \n□DOVA-SYNDROME 　\nHP：https://dova-s.jp/\nLicense : https://dova-s.jp/_contents/license/\n□AUDIOSTOCK\nHP：https://audiostock.jp/\nLicense : https://audiostock.jp/help/usage\n\n༻━━━༺ .⋅ ✧ ⋅. ༻━━━༺\n\n[Fan Work Guidelines]\nhttps://en.hololive.tv/terms\n\n༻━━━༺ .⋅ ✧ ⋅. ༻━━━༺\n\n[Official Online Shop]\nhttps://hololive.booth.pm/\n\n[Holoschedule] (Check all members streaming schedules)\nhttps://schedule.hololive.tv/#hololive\n\n༻━━━༺ .⋅ ✧ ⋅. ༻━━━༺\n\n[Hololive Production]\n・Hololive English YouTube Channel: https://t.co/LcYDgFF9V0?amp=1\n・Hololive Production Official Twitter: https://twitter.com/hololivetv\n・Hololive English Official Twitter: https://twitter.com/hololive_En\n・Hololive English Official Reddit: https://www.reddit.com/r/Hololive/\n\n༻━━━༺ .⋅ ✧ ⋅. ༻━━━༺\n\n#holoCouncil\n#hololiveEnglish",
+        "thumbnails": {
+          "default": {
+            "url": "https://i.ytimg.com/vi/b4DYJ7-1IQA/default.jpg",
+            "width": 120,
+            "height": 90
+          },
+          "medium": {
+            "url": "https://i.ytimg.com/vi/b4DYJ7-1IQA/mqdefault.jpg",
+            "width": 320,
+            "height": 180
+          },
+          "high": {
+            "url": "https://i.ytimg.com/vi/b4DYJ7-1IQA/hqdefault.jpg",
+            "width": 480,
+            "height": 360
+          },
+          "standard": {
+            "url": "https://i.ytimg.com/vi/b4DYJ7-1IQA/sddefault.jpg",
+            "width": 640,
+            "height": 480
+          },
+          "maxres": {
+            "url": "https://i.ytimg.com/vi/b4DYJ7-1IQA/maxresdefault.jpg",
+            "width": 1280,
+            "height": 720
+          }
+        },
+        "channelTitle": "Ceres Fauna Ch. hololive-EN",
+        "tags": [
+          "ホロライブ",
+          "hololive",
+          "ホロライブゲーマーズ",
+          "歌ってみた",
+          "ゲーム実況",
+          "実況",
+          "バーチャルyoutuber",
+          "Vtuber",
+          "VTuber",
+          "バーチャルYouTuber",
+          "VR",
+          "3D",
+          "ときのそら",
+          "ロボ子さん",
+          "夜空メル",
+          "アキ・ローゼンタール",
+          "赤井はあと",
+          "白上フブキ",
+          "夏色まつり",
+          "湊あくあ",
+          "紫咲シオン",
+          "百鬼あやめ",
+          "癒月ちょこ",
+          "大空スバル",
+          "大神ミオ",
+          "さくらみこ",
+          "猫又おかゆ",
+          "戌神ころね",
+          "兎田ぺこら",
+          "潤羽るしあ",
+          "不知火フレア",
+          "宝鐘マリン",
+          "白銀ノエル",
+          "AZKi",
+          "星街すいせい",
+          "天音かなた",
+          "桐生ココ",
+          "姫森ルーナ",
+          "角巻わため",
+          "常闇トワ",
+          "雪花ラミィ",
+          "桃鈴ねね",
+          "獅白ぼたん",
+          "尾丸ポルカ",
+          "Watson",
+          "Amelia",
+          "Gawr",
+          "Gura",
+          "Mori",
+          "Calliope",
+          "Takanashi",
+          "Kiara",
+          "Ninomae",
+          "Ina’nis",
+          "IRyS",
+          "Tsukumo",
+          "Sana",
+          "Ceres",
+          "Fauna",
+          "Ouro",
+          "Kronii",
+          "Nanashi",
+          "Mumei",
+          "Hakos",
+          "Baelz"
+        ],
+        "categoryId": "24",
+        "liveBroadcastContent": "upcoming",
+        "localized": {
+          "title": "【Watchalong】 Komi Can't Communicate #holoCouncil",
+          "description": "Watching episodes 4, 5, and 6 of Komi Can't Communicate!\n\n✿ Artist Credits ✿\nThumbnail artist: https://twitter.com/Shaymindango\nBG is from Clip Studio Paint\nThank you so much!! 💚\n\n✿ Hashtags ✿\nLIVE: #faunline ART: #FineFaunart\n\n✿ Twitter ✿\nhttps://twitter.com/ceresfauna\n@ceresfauna\n\n༻━━━༺ .⋅ ✧ ⋅. ༻━━━༺\n\n 【Tsukumo Sana】\n[YouTube] https://t.co/rmtApAWdl3?amp=1\n[Twitter] https://twitter.com/tsukumosana\n\n 【Ouro Kronii】\n[YouTube] https://t.co/P3BX2MUiCX?amp=1\n[Twitter] https://twitter.com/ourokronii\n\n 【Nanashi Mumei】\n[YouTube] https://t.co/oO4kBazKMv?amp=1\n[Twitter] https://twitter.com/nanashimumei_en\n\n 【Hakos Baelz】\n[YouTube] https://t.co/X17xhp1Bty?amp=1\n[Twitter] https://twitter.com/hakosbaelz\n\n༻━━━༺ .⋅ ✧ ⋅. ༻━━━༺\n\n【 FauForest Rules! 】\n\n► Be kind and respectful to everyone here! Don’t spam or troll.\n► If you see spam or trolling, don’t respond. Just block, report, and ignore those comments. \n► Talk about the stream, but please don’t bring up unrelated topics or have personal conversations.\n► Don’t bring up other streamers or streams unless I mention them first.\n► Similarly, don’t talk about me or my stream in other streamers’ chat.\n► Try your best not to backseat. I like to enjoy games at my own pace, and I think part of the fun is watching me struggle, so please refrain from offering advice unless I specifically ask for help!\n\nAs long as you follow the rules above, you can chat in any language.\n\n༻━━━༺ .⋅ ✧ ⋅. ༻━━━༺\n\n【CREDITS】\nStream Layouts: Melonturtle (https://twitter.com/Melonturtle_)\nLogo: ごごん (https://twitter.com/gogon_illust)\nCustom BGM: Arkhand (https://twitter.com/the_arkhand)\nEmotes: Maerie (https://twitter.com/maeriette)\nStinger Transition: UWU Media (https://twitter.com/uwumedia)\n\n使用BGM \n□DOVA-SYNDROME 　\nHP：https://dova-s.jp/\nLicense : https://dova-s.jp/_contents/license/\n□AUDIOSTOCK\nHP：https://audiostock.jp/\nLicense : https://audiostock.jp/help/usage\n\n༻━━━༺ .⋅ ✧ ⋅. ༻━━━༺\n\n[Fan Work Guidelines]\nhttps://en.hololive.tv/terms\n\n༻━━━༺ .⋅ ✧ ⋅. ༻━━━༺\n\n[Official Online Shop]\nhttps://hololive.booth.pm/\n\n[Holoschedule] (Check all members streaming schedules)\nhttps://schedule.hololive.tv/#hololive\n\n༻━━━༺ .⋅ ✧ ⋅. ༻━━━༺\n\n[Hololive Production]\n・Hololive English YouTube Channel: https://t.co/LcYDgFF9V0?amp=1\n・Hololive Production Official Twitter: https://twitter.com/hololivetv\n・Hololive English Official Twitter: https://twitter.com/hololive_En\n・Hololive English Official Reddit: https://www.reddit.com/r/Hololive/\n\n༻━━━༺ .⋅ ✧ ⋅. ༻━━━༺\n\n#holoCouncil\n#hololiveEnglish"
+        }
+      },
+      "contentDetails": {
+        "duration": "P0D",
+        "dimension": "2d",
+        "definition": "hd",
+        "caption": "false",
+        "licensedContent": false,
+        "contentRating": {},
+        "projection": "rectangular"
+      },
+      "status": {
+        "uploadStatus": "processed",
+        "privacyStatus": "unlisted",
+        "license": "youtube",
+        "embeddable": true,
+        "publicStatsViewable": true,
+        "madeForKids": false
+      },
+      "liveStreamingDetails": {
+        "actualStartTime": "2021-12-10T23:00:18Z",
+        "actualEndTime": "2021-12-11T00:49:12Z",
+        "scheduledStartTime": "2021-12-10T23:00:00Z"
+      }
+    }
+  ],
+  "pageInfo": {
+    "totalResults": 1,
+    "resultsPerPage": 1
+  }
+}

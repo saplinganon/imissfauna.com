@@ -52,59 +52,97 @@ function scrambledImageSet(state) {
     }
 }
 
+// This function is now pretty confusing with all the extra data sources
+// so here's a chart to try and explain how it works. Time proceeds
+// downwards. The stream info API does something similar, but waits
+// for the Twitter update to finish before sending a response. 
+//
+//                              +---------------+ +----------------+
+// Still valid------------------+Get cached data| |Get past stream |
+//      |                       |from DB        | |from holodex    |
+//      |                       +-------+-------+ +--------+-------+
+//      |                               |                  |
+//      |                             Stale?               |
+//      |     +------------+            |                  |
+//      |   +-+ Revalidate |<--Members?-+                  |
+//      |   | | against YT |            |                  |
+//      |   | | API        |            |                  |
+//      |   | ++-----------+            v                  |
+//      |   |  |                +---------------+          |
+//      |   |  |    Dead/       |Check YouTube  |          |
+//      |   |  +----finished--->|/live endpoint |          |
+//      |   |                   +-------+--+----+          |           +--------------------+
+//      |   |                           |  |               |           |Search Twitter      |
+//      |   |                           |  +--No stream----+---------> |for members streams |
+//      |   |                           v                  |           |/premieres          |
+//      |   |                   +---------------+          |           +---------+----------+
+//      +---+------------------>|Send response  |<---------+                     |
+//                              |to client      |                                |
+//                              +---------------+                                |
+//                                                                               |
+//                              +---------------+                                |
+//                              |First refresh  |<-------------------------------+
+//                              |by client JS   |
+//                              +---------------+
+//
 export async function getServerSideProps({ req, res, query }) {
-    const sLSP = await import("../server/livestream_poller")
-    const sPSP = await import("../server/paststream_poller")
+    const ds = await import("../server/data_sources")
+    const coordinator = await ds.getDatabase()
 
-    let netPromises = []
-    if (process.env.USE_DUMMY_DATA === "true") {
-        netPromises.push(sLSP.pollLivestreamStatusDummy(process.env.WATCH_CHANNEL_ID, query.mock))
-    } else {
-        netPromises.push(sLSP.pollLivestreamStatus(process.env.WATCH_CHANNEL_ID))
+    if (process.env.USE_DUMMY_DATA !== "true") {
         res.setHeader("Cache-Control", "max-age=0, s-maxage=90, stale-while-revalidate=180")
-    }
-
-    netPromises.push(sPSP.pollPaststreamStatus(process.env.WATCH_CHANNEL_ID))
-
-    const [apiVal, pastStreamVal] = await Promise.all(netPromises)
-    const { result, error } = apiVal
-
-    const { error: pastStreamError, result: pastStreamResult } = pastStreamVal
-    if (pastStreamError) {
-        console.warn("paststream poll returned error:", pastStreamError)
-        // Error is non-blocking. Gracefully fall back to not displaying things related to past stream
     }
 
     const absolutePrefix = process.env.PUBLIC_HOST
     const channelLink = `https://www.youtube.com/channel/${process.env.WATCH_CHANNEL_ID}`
 
-    if (error) {
-        console.warn("livestream poll returned error:", error)
-        return { props: { 
-            showDebugBar: (process.env.USE_DUMMY_DATA === "true"),
-            passDown: { absolutePrefix, channelLink }, 
-            dynamic: { isError: true, initialImage: selectRandomImage(ERROR_IMAGE_SET), pastStream: pastStreamResult } 
-        } }
+    let useStreamInfo, pastStreamPromise = ds.getPastStream()
+    let initialRefreshTime = 0
+    if (!(useStreamInfo = await ds.getKnownStreamData(coordinator))) {
+        const { result, error } = await ds.getLiveStreamData(query.mock)
+        if (error) {
+            console.warn("livestream poll returned error:", error)
+            return { props: { 
+                showDebugBar: (process.env.USE_DUMMY_DATA === "true"),
+                passDown: { absolutePrefix, channelLink }, 
+                dynamic: { isError: true, initialImage: selectRandomImage(ERROR_IMAGE_SET), pastStream: await pastStreamPromise } 
+            } }
+        }
+
+        if (result.videoLink) {
+            if (process.env.USE_DUMMY_DATA !== "true") {
+                await coordinator.updateCache([result])
+            }
+        } else {
+            ds.findExtraStreams(coordinator).then(() => console.log("extra task done"))
+            // Instruct the client to refresh after the extended check is done (hopefully).
+            // Depending on latency this might need adjustment
+            initialRefreshTime = 5
+        }
+
+        useStreamInfo = result
     }
 
     return { props: {
         showDebugBar: (process.env.USE_DUMMY_DATA === "true"),
-        initialRefreshTime: 5,
+        initialRefreshTime,
         passDown: {
             absolutePrefix,
             channelLink
         },
         dynamic: {
-            initialImage: imageFromStreamStatus(result.live),
+            initialImage: imageFromStreamStatus(useStreamInfo.live),
             usedImageSet: null, //set in Home.componentDidMount
-            status: result.live,
+            status: useStreamInfo.live,
             isError: false,
-            pastStream: pastStreamResult,
+            pastStream: await pastStreamPromise,
             streamInfo: {
-                link: result.videoLink,
-                title: result.title,
-                startTime: result.streamStartTime?.getTime?.() || null,
-                thumbnail: result.thumbnail
+                link: useStreamInfo.videoLink,
+                title: useStreamInfo.title,
+                startTime: useStreamInfo.streamStartTime?.getTime?.() || null,
+                thumbnail: useStreamInfo.thumbnail,
+                isMembersOnly: useStreamInfo.isMembersOnly,
+                streamType: useStreamInfo.streamType,
             }
         }
     } }
@@ -149,7 +187,7 @@ function StreamInfo(props) {
         thumb = props.info.thumbnail
     } else {
         text = "Current Stream"
-        link = <><b>NOTHING UUUUUUUuuuuuu</b> <small>(but maybe there&apos;s a member stream...)</small></>
+        link = <b>NOTHING UUUUUUUuuuuuu</b>
     }
 
     const formats = {
@@ -166,6 +204,7 @@ function StreamInfo(props) {
                     : null}
             </p>
             <p>{link}</p>
+            {props.info?.isMembersOnly ? <p>(for Faunatics only!)</p> : null}
         </div>
         {thumb ? <img src={thumb} alt="thumbnail" width={120} /> : null}
     </div>

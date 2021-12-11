@@ -1,0 +1,173 @@
+{
+    "data": [
+        {
+            "entities": {
+                "urls": [
+                    {
+                        "start": 50,
+                        "end": 73,
+                        "url": "https://t.co/k1PdrII3bE",
+                        "expanded_url": "https://youtu.be/wM_J4K2ZeBU",
+                        "display_url": "youtu.be/wM_J4K2ZeBU",
+                        "images": [
+                            {
+                                "url": "https://pbs.twimg.com/news_img/1469798008858439687/ggNV-zwM?format=jpg&name=orig",
+                                "width": 1280,
+                                "height": 720
+                            },
+                            {
+                                "url": "https://pbs.twimg.com/news_img/1469798008858439687/ggNV-zwM?format=jpg&name=150x150",
+                                "width": 150,
+                                "height": 150
+                            }
+                        ],
+                        "status": 200,
+                        "title": "【ASMR】 Ear Cleaning & Oil Massage Treatment For Saplings \uD83C\uDF31",
+                        "description": "Fauna gives your sapling leaves a special cleaning & oil massage!【 Timestamps 】✿ 0:00 - Konfauna~ Sapling inspection!✿ 4:47 - brushing your leaves clean with...",
+                        "unwound_url": "https://www.youtube.com/watch?v=wM_J4K2ZeBU&feature=youtu.be"
+                    },
+                    {
+                        "start": 74,
+                        "end": 97,
+                        "url": "https://t.co/8gt8RHJPI0",
+                        "expanded_url": "https://twitter.com/ceresfauna/status/1469472895977934853",
+                        "display_url": "twitter.com/ceresfauna/sta…"
+                    }
+                ]
+            },
+            "text": "Waiting room is now up \uD83C\uDF31 I hope you'll enjoy it!\n\nhttps://t.co/k1PdrII3bE https://t.co/8gt8RHJPI0",
+            "author_id": "1409784760805650436",
+            "id": "1469798005586886656"
+        },
+        {
+            "entities": {
+                "mentions": [
+                    {
+                        "start": 27,
+                        "end": 42,
+                        "username": "maccormick_4_4",
+                        "id": "830419715528892416"
+                    }
+                ]
+            },
+            "text": "Featuring beautiful art by @maccormick_4_4! Thank you so much for your wonderful work \uD83D\uDC96",
+            "author_id": "1409784760805650436",
+            "id": "1469472897731153923"
+        },
+        {
+            "entities": {
+                "urls": [
+                    {
+                        "start": 204,
+                        "end": 227,
+                        "url": "https://t.co/Ejg3J4MOHb",
+                        "expanded_url": "https://twitter.com/ceresfauna/status/1469472895977934853/photo/1",
+                        "display_url": "pic.twitter.com/Ejg3J4MOHb"
+                    }
+                ]
+            },
+            "text": "『 \uD835\uDC3B\uD835\uDC5C\uD835\uDCCC \uD835\uDCB6\uD835\uDCC7\uD835\uDC52 \uD835\uDCCE\uD835\uDC5C\uD835\uDCCA \uD835\uDCB9\uD835\uDC5C\uD835\uDCBE\uD835\uDCC3\uD835\uDC54, \uD835\uDCC1\uD835\uDCBE\uD835\uDCC9\uD835\uDCC9\uD835\uDCC1\uD835\uDC52 \uD835\uDCC8\uD835\uDCB6\uD835\uDCC5\uD835\uDCC1\uD835\uDCBE\uD835\uDCC3\uD835\uDC54? 』\n\nNew prerecorded/scripted ASMR video is premiering tomorrow! Waiting room will go up closer to release time~\n\n✧ December 11th/12th ✧\n6 pm PDT / 2 am GMT / 11 am JST https://t.co/Ejg3J4MOHb",
+            "author_id": "1409784760805650436",
+            "id": "1469472895977934853"
+        },
+        {
+            "entities": {
+                "urls": [
+                    {
+                        "start": 44,
+                        "end": 67,
+                        "url": "https://t.co/wv3nzi1qLu",
+                        "expanded_url": "https://twitter.com/Shaymindango/status/1430142790176960512",
+                        "display_url": "twitter.com/Shaymindango/s…"
+                    }
+                ]
+            },
+            "text": "Thank you for the cuuuuute art!!! \n(//▽//)\n\nhttps://t.co/wv3nzi1qLu",
+            "author_id": "1409784760805650436",
+            "id": "1469410763588587524"
+        },
+        {
+            "entities": {
+                "urls": [
+                    {
+                        "start": 156,
+                        "end": 179,
+                        "url": "https://t.co/nzLzc2r67L",
+                        "expanded_url": "https://youtu.be/b4DYJ7-1IQA",
+                        "display_url": "youtu.be/b4DYJ7-1IQA"
+                    },
+                    {
+                        "start": 180,
+                        "end": 203,
+                        "url": "https://t.co/loPupZWQ7z",
+                        "expanded_url": "https://twitter.com/ceresfauna/status/1469410761197768704/photo/1",
+                        "display_url": "pic.twitter.com/loPupZWQ7z"
+                    }
+                ]
+            },
+            "text": "The next members stream will be in about 2 hours and we'll be continuing our watchalong of Komi Can't Communicate! I'm excited to see more of cute Komi...\n\nhttps://t.co/nzLzc2r67L https://t.co/loPupZWQ7z",
+            "author_id": "1409784760805650436",
+            "id": "1469410761197768704"
+        },
+        {
+            "text": "CALLIIIIIIIIII ❤\uD83D\uDD25\n\nfeeling so lucky to be surrounded by such amazing girls ❤ AMAZING SHOW, YOU KILLED IT",
+            "author_id": "1409784760805650436",
+            "id": "1469155438474436611"
+        },
+        {
+            "text": "big brain bae has cured me of all my minecraft ails",
+            "author_id": "1409784760805650436",
+            "id": "1469108435388043267"
+        },
+        {
+            "entities": {
+                "urls": [
+                    {
+                        "start": 34,
+                        "end": 57,
+                        "url": "https://t.co/s3GQxXJ7i9",
+                        "expanded_url": "https://twitter.com/ceresfauna/status/1469107288623382528/photo/1",
+                        "display_url": "pic.twitter.com/s3GQxXJ7i9"
+                    },
+                    {
+                        "start": 34,
+                        "end": 57,
+                        "url": "https://t.co/s3GQxXJ7i9",
+                        "expanded_url": "https://twitter.com/ceresfauna/status/1469107288623382528/photo/1",
+                        "display_url": "pic.twitter.com/s3GQxXJ7i9"
+                    }
+                ]
+            },
+            "text": "wake up babe new rat just dropped https://t.co/s3GQxXJ7i9",
+            "author_id": "1409784760805650436",
+            "id": "1469107288623382528"
+        },
+        {
+            "entities": {
+                "urls": [
+                    {
+                        "start": 38,
+                        "end": 61,
+                        "url": "https://t.co/JB137r3tMi",
+                        "expanded_url": "https://twitter.com/hikigaya_0926_/status/1458580494145110023",
+                        "display_url": "twitter.com/hikigaya_0926_…"
+                    }
+                ]
+            },
+            "text": "thank you for your super cute art!!!\n\nhttps://t.co/JB137r3tMi",
+            "author_id": "1409784760805650436",
+            "id": "1469051993058545664"
+        },
+        {
+            "text": "*little under.............",
+            "author_id": "1409784760805650436",
+            "id": "1469051663252033538"
+        }
+    ],
+    "meta": {
+        "oldest_id": "1469051663252033538",
+        "newest_id": "1469798005586886656",
+        "result_count": 10,
+        "next_token": ""
+    }
+}

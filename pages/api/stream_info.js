@@ -1,31 +1,63 @@
-import { STREAM_STATUS } from "../../common/enums"
-import { pollLivestreamStatus, pollLivestreamStatusDummy } from "../../server/livestream_poller"
-import { pollPaststreamStatus } from "../../server/paststream_poller"
+import { getDatabase, getKnownStreamData, getLiveStreamData, getPastStream, findExtraStreams } from "../../server/data_sources"
+
+function chooseBest(streams) {
+    let nearest = 0
+    let best = null
+    const now = Date.now()
+    for (let streamInfo of streams) {
+        if (streamInfo.type === STREAM_TYPE.DEAD) {
+            continue
+        }
+        if (streamInfo.live === STREAM_STATUS.LIVE) {
+            return streamInfo
+        }
+
+        if (!best || Math.abs(streamInfo.streamStartTime.getTime() - now) < nearest) {
+            nearest = streamInfo.streamStartTime.getTime() - now
+            best = streamInfo
+        }
+    }
+
+    return best
+}
 
 export default async function handler(req, res) {
     if (req.method !== "GET") {
         return res.status(405).json({ error: true, result: null })
     }
 
-    let netPromises = []
-    if (process.env.USE_DUMMY_DATA === "true") {
-        netPromises.push(pollLivestreamStatusDummy(process.env.WATCH_CHANNEL_ID, req.query.mock))
-    } else {
-        netPromises.push(pollLivestreamStatus(process.env.WATCH_CHANNEL_ID))
+    const coordinator = await getDatabase()
+
+    if (process.env.USE_DUMMY_DATA !== "true") {
         res.setHeader("Cache-Control", "max-age=0, s-maxage=90, stale-while-revalidate=180")
     }
-    netPromises.push(pollPaststreamStatus(process.env.WATCH_CHANNEL_ID))
 
-    const [ytLiveVal, pastVal] = await Promise.all(netPromises)
+    let useStreamInfo, pastStreamPromise = getPastStream()
+    if (!(useStreamInfo = await getKnownStreamData(coordinator))) {
+        const { result, error } = await getLiveStreamData(req.query.mock)
+        if (error) {
+            console.warn("livestream poll returned error:", error)
+            useStreamInfo = null
+        } else {
+            if (result.videoLink && process.env.USE_DUMMY_DATA !== "true") {
+                await coordinator.updateCache([result])
+            } 
+    
+            useStreamInfo = result
+        }
 
-    const { result: ytResult, error: ytError } = ytLiveVal
-    const { result: pastResult, error: pastError } = pastVal
-
-    if (pastError || ytError) {
-        console.warn("poll returned error(s):", { pastError, ytError })
+        if (!useStreamInfo?.videoLink) {
+            useStreamInfo = chooseBest(await findExtraStreams(coordinator))
+        }
     }
 
-    if (pastError && ytError) {
+    const { pastResult, pastError } = await pastStreamPromise
+
+    if (pastError) {
+        console.warn("holodex poll returned error:", pastError)
+    }
+
+    if (pastError && !useStreamInfo) {
         // No useful information
         return res.status(200).json({ error: true, result: null })
     }
@@ -38,14 +70,16 @@ export default async function handler(req, res) {
         }
     }
 
-    if (ytResult) {
+    if (useStreamInfo) {
         responseValue.result.ytStreamData = {
-            status: ytResult.live,
+            status: useStreamInfo.live,
             streamInfo: {
-                link: ytResult.videoLink,
-                title: ytResult.title,
-                startTime: ytResult.streamStartTime?.getTime?.() || null,
-                thumbnail: ytResult.thumbnail
+                link: useStreamInfo.videoLink,
+                title: useStreamInfo.title,
+                startTime: useStreamInfo.streamStartTime?.getTime?.() || null,
+                thumbnail: useStreamInfo.thumbnail,
+                isMembersOnly: useStreamInfo.isMembersOnly,
+                streamType: useStreamInfo.streamType,
             }
         }
     }
