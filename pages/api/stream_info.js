@@ -1,11 +1,16 @@
+import { STREAM_STATUS, STREAM_TYPE } from "../../common/enums"
 import { getDatabase, getKnownStreamData, getLiveStreamData, getPastStream, findExtraStreams } from "../../server/data_sources"
 
 function chooseBest(streams) {
+    if (!streams) {
+        return null
+    }
+
     let nearest = 0
     let best = null
     const now = Date.now()
     for (let streamInfo of streams) {
-        if (streamInfo.type === STREAM_TYPE.DEAD) {
+        if (streamInfo.streamType === STREAM_TYPE.DEAD) {
             continue
         }
         if (streamInfo.live === STREAM_STATUS.LIVE) {
@@ -32,22 +37,26 @@ export default async function handler(req, res) {
         res.setHeader("Cache-Control", "max-age=0, s-maxage=90, stale-while-revalidate=180")
     }
 
-    let useStreamInfo, pastStreamPromise = getPastStream()
-    if (!(useStreamInfo = await getKnownStreamData(coordinator))) {
+    let useStreamInfo = await getKnownStreamData(coordinator)
+    const pastStreamPromise = getPastStream()
+    if (!useStreamInfo) {
         const { result, error } = await getLiveStreamData(req.query.mock)
         if (error) {
             console.warn("livestream poll returned error:", error)
             useStreamInfo = null
         } else {
-            if (result.videoLink && process.env.USE_DUMMY_DATA !== "true") {
+            if (result.videoLink) {
                 await coordinator.updateCache([result])
             } 
-    
+
             useStreamInfo = result
         }
 
         if (!useStreamInfo?.videoLink) {
-            useStreamInfo = chooseBest(await findExtraStreams(coordinator))
+            const exResult = chooseBest(await findExtraStreams(coordinator))
+            if (exResult) {
+                useStreamInfo = exResult
+            }
         }
     }
 

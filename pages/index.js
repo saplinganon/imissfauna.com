@@ -96,9 +96,11 @@ export async function getServerSideProps({ req, res, query }) {
     const absolutePrefix = process.env.PUBLIC_HOST
     const channelLink = `https://www.youtube.com/channel/${process.env.WATCH_CHANNEL_ID}`
 
-    let useStreamInfo, pastStreamPromise = ds.getPastStream()
     let initialRefreshTime = 0
-    if (!(useStreamInfo = await ds.getKnownStreamData(coordinator))) {
+    let useStreamInfo = await ds.getKnownStreamData(coordinator)
+    const pastStreamPromise = ds.getPastStream()
+    
+    if (!useStreamInfo) {
         const { result, error } = await ds.getLiveStreamData(query.mock)
         if (error) {
             console.warn("livestream poll returned error:", error)
@@ -110,9 +112,7 @@ export async function getServerSideProps({ req, res, query }) {
         }
 
         if (result.videoLink) {
-            if (process.env.USE_DUMMY_DATA !== "true") {
-                await coordinator.updateCache([result])
-            }
+            await coordinator.updateCache([result])
         } else {
             ds.findExtraStreams(coordinator).then(() => console.log("extra task done"))
             // Instruct the client to refresh after the extended check is done (hopefully).

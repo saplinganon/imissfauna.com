@@ -38,7 +38,7 @@ export async function getKnownStreamData(coordinator) {
     const now = Date.now()
     let { streamInfo: result, lastCheck } = await coordinator.getCachedStreamInfo(now)
     result = await revalidateCachedStream(coordinator, result, now - lastCheck)
-    if (result && result.type !== STREAM_TYPE.DEAD) {
+    if (result && result.streamType !== STREAM_TYPE.DEAD) {
         if (result.live !== STREAM_STATUS.LIVE && result.streamStartTime) {
             const waitTime = result.streamStartTime.getTime() - now
             if (waitTime > 1800 * 1000) {
@@ -87,14 +87,13 @@ export async function findExtraStreams(coordinator) {
     )
 
     if (!error) {
-        if (process.env.USE_DUMMY_DATA !== "true") {
-            await coordinator.setConfig("last_tweet_id", result.latestTweet)
-            await coordinator.setConfig("last_twitter_check", Date.now().toString())
-            await coordinator.updateCache(result.streams)
-        }
+        await coordinator.setConfig("last_tweet_id", result.latestTweet)
+        await coordinator.setConfig("last_twitter_check", Date.now().toString())
+        await coordinator.updateCache(result.streams)
+        return result.streams
     }
-
-    return result.streams
+    
+    return null
 }
 
 export async function getDatabase() {
