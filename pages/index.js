@@ -5,15 +5,16 @@ import { ERROR_IMAGE_SET, HAVE_STREAM_IMAGE_SET, NO_STREAM_IMAGE_SET } from "../
 import { Component, useState } from "react"
 import { TextCountdown } from "../components/text_countdown"
 
-function selectRandomImage(fromSet, excludingImage) {
-    let excludeIndex
-    if (excludingImage && fromSet.length > 1 && (excludeIndex = fromSet.indexOf(excludingImage)) > -1) {
-        // This is to prevent the same image from being selected again.
-        const nextIndex = (Math.random() * (fromSet.length - 1)) | 0
-        return fromSet[nextIndex >= excludeIndex ? nextIndex + 1 : nextIndex]
-    }
-
+function selectRandomImage(fromSet) {
     return fromSet[(Math.random() * fromSet.length) | 0]
+}
+
+/**
+ * Returns the next image in an imageset, wrapping around to the start after reaching the end of the array.
+ */
+function selectNextImage(fromSet, currentImage) {
+    let nextIndex = fromSet.indexOf(currentImage) + 1
+    return fromSet[(((nextIndex - 0) % (fromSet.length - 0)) + 0)  | 0]
 }
 
 function imageFromStreamStatus(status) {
@@ -181,7 +182,7 @@ function LiveOrStartingSoonLayout(props) {
         <h1>{"I Don't Miss Fauna"}</h1>
         <StreamInfo status={props.status} info={props.streamInfo} />
         <img className={styles.bigImage} src={`${props.absolutePrefix}/${image}`} alt="wah" 
-            onClick={() => setImage(selectRandomImage(HAVE_STREAM_IMAGE_SET, image))} />
+            onClick={() => setImage(selectNextImage(HAVE_STREAM_IMAGE_SET, image))} />
         {pastStreamCounter}
         <CommonFooter channelLink={props.channelLink} actRefreshNow={props.actRefreshNow} />
     </div>
@@ -201,7 +202,7 @@ function NoStreamLayout(props) {
         </Head>
 
         <img className={styles.bigImage} src={`${props.absolutePrefix}/${image}`} alt="wah" 
-            onClick={() => setImage(selectRandomImage(NO_STREAM_IMAGE_SET, image))} />
+            onClick={() => setImage(selectNextImage(NO_STREAM_IMAGE_SET, image))} />
         <StreamInfo status={props.status} info={props.streamInfo} />
         {pastStreamCounter}
         <CommonFooter channelLink={props.channelLink} actRefreshNow={props.actRefreshNow} />
@@ -220,7 +221,7 @@ function ErrorLayout(props) {
             <meta content={`${props.absolutePrefix}/${image}`} property="og:image" />
         </Head>
         <img className={styles.bigImage} src={`${props.absolutePrefix}/${image}`} alt="wah" 
-            onClick={() => setImage(selectRandomImage(ERROR_IMAGE_SET, image))} />
+            onClick={() => setImage(selectNextImage(ERROR_IMAGE_SET, image))} />
         <div className={`${styles.streamInfo} ${styles.streamInfoError}`}>
             <p>There was a problem checking stream status. <a href={props.channelLink}>{"You can check Fauna's channel yourself"}</a>!</p>
         </div>
