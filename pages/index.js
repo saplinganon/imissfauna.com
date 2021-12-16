@@ -14,7 +14,7 @@ function selectRandomImage(fromSet) {
  */
 function selectNextImage(fromSet, currentImage) {
     let nextIndex = fromSet.indexOf(currentImage) + 1
-    return fromSet[(((nextIndex - 0) % (fromSet.length - 0)) + 0)  | 0]
+    return fromSet[(nextIndex % fromSet.length) | 0]
 }
 
 function imageFromStreamStatus(status) {
@@ -22,6 +22,26 @@ function imageFromStreamStatus(status) {
         return selectRandomImage(NO_STREAM_IMAGE_SET)
     } else {
         return selectRandomImage(HAVE_STREAM_IMAGE_SET)
+    }
+}
+
+/**
+ * Returns an imageset with its positions in the array scrambled.
+ */
+function scrambledImageSet(status) {
+    let shuffle = function(array) {
+        for (var i = array.length - 1; i > 0; i--) {
+            var j = Math.floor(Math.random() * (i + 1))
+            var temp = array[i]
+            array[i] = array[j]
+            array[j] = temp
+        }
+        return array
+    }
+    if (status != STREAM_STATUS.LIVE && status != STREAM_STATUS.STARTING_SOON) {
+        return shuffle([...NO_STREAM_IMAGE_SET])
+    } else {
+        return shuffle([...HAVE_STREAM_IMAGE_SET])
     }
 }
 
@@ -68,6 +88,7 @@ export async function getServerSideProps({ req, res, query }) {
         },
         dynamic: {
             initialImage: imageFromStreamStatus(result.live),
+            usedImageSet: scrambledImageSet(result.live),
             status: result.live,
             isError: false,
             pastStream: pastStreamResult,
@@ -182,7 +203,7 @@ function LiveOrStartingSoonLayout(props) {
         <h1>{"I Don't Miss Fauna"}</h1>
         <StreamInfo status={props.status} info={props.streamInfo} />
         <img className={styles.bigImage} src={`${props.absolutePrefix}/${image}`} alt="wah" 
-            onClick={() => setImage(selectNextImage(HAVE_STREAM_IMAGE_SET, image))} />
+            onClick={() => setImage(selectNextImage(props.usedImageSet, image))} />
         {pastStreamCounter}
         <CommonFooter channelLink={props.channelLink} actRefreshNow={props.actRefreshNow} />
     </div>
@@ -202,7 +223,7 @@ function NoStreamLayout(props) {
         </Head>
 
         <img className={styles.bigImage} src={`${props.absolutePrefix}/${image}`} alt="wah" 
-            onClick={() => setImage(selectNextImage(NO_STREAM_IMAGE_SET, image))} />
+            onClick={() => setImage(selectNextImage(props.usedImageSet, image))} />
         <StreamInfo status={props.status} info={props.streamInfo} />
         {pastStreamCounter}
         <CommonFooter channelLink={props.channelLink} actRefreshNow={props.actRefreshNow} />
@@ -221,7 +242,7 @@ function ErrorLayout(props) {
             <meta content={`${props.absolutePrefix}/${image}`} property="og:image" />
         </Head>
         <img className={styles.bigImage} src={`${props.absolutePrefix}/${image}`} alt="wah" 
-            onClick={() => setImage(selectNextImage(ERROR_IMAGE_SET, image))} />
+            onClick={() => setImage(selectNextImage(props.usedImageSet, image))} />
         <div className={`${styles.streamInfo} ${styles.streamInfoError}`}>
             <p>There was a problem checking stream status. <a href={props.channelLink}>{"You can check Fauna's channel yourself"}</a>!</p>
         </div>
@@ -273,13 +294,15 @@ export default class Home extends Component {
             })
             .then((jsBody) => {
                 if (jsBody.ytStreamData) {
-                    const nextState = { isError: false, status: jsBody.ytStreamData.status, streamInfo: jsBody.ytStreamData.streamInfo, initialImage: null }
+                    const nextState = { isError: false, status: jsBody.ytStreamData.status, streamInfo: jsBody.ytStreamData.streamInfo, initialImage: null, usedImageSet: this.state.usedImageSet }
                     // If the stream status changes, the render layout we use can also change, which will reset the
                     // image to the initialImage. The code here is to make sure the initialImage is correct
                     // for the stream status.
                     // It is set to null above, but this is fine because it will only be looked at on layout changes.
+                    // usedImageSet on the other hand has to be always set, so it takes from the last state and gets rewritten if the state needs to change
                     if (nextState.status !== this.state.status) {
                         nextState.initialImage = imageFromStreamStatus(nextState.status)
+                        nextState.usedImageSet = scrambledImageSet(nextState.status)
                     }
 
                     this.setState(nextState)
