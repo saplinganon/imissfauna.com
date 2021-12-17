@@ -14,7 +14,7 @@ function selectRandomImage(fromSet) {
  */
 function selectNextImage(fromSet, currentImage) {
     let nextIndex = fromSet.indexOf(currentImage) + 1
-    return fromSet[(nextIndex % fromSet.length) | 0]
+    return fromSet[nextIndex % fromSet.length]
 }
 
 function imageFromStreamStatus(status) {
@@ -30,18 +30,25 @@ function imageFromStreamStatus(status) {
  */
 function scrambledImageSet(status) {
     let shuffle = function(array) {
-        for (var i = array.length - 1; i > 0; i--) {
-            var j = Math.floor(Math.random() * (i + 1))
-            var temp = array[i]
+        for (let i = array.length - 1; i > 0; i--) {
+            let j = Math.floor(Math.random() * (i + 1))
+            let temp = array[i]
             array[i] = array[j]
             array[j] = temp
         }
         return array
     }
-    if (status != STREAM_STATUS.LIVE && status != STREAM_STATUS.STARTING_SOON) {
-        return shuffle([...NO_STREAM_IMAGE_SET])
-    } else {
-        return shuffle([...HAVE_STREAM_IMAGE_SET])
+    if(status.isError) {
+        return shuffle([...ERROR_IMAGE_SET])
+    }
+    switch(status) {
+        case STREAM_STATUS.LIVE:
+        case STREAM_STATUS.STARTING_SOON:
+            return shuffle([...HAVE_STREAM_IMAGE_SET])
+        case STREAM_STATUS.OFFLINE:
+        case STREAM_STATUS.INDETERMINATE:
+            return shuffle([...NO_STREAM_IMAGE_SET])
+
     }
 }
 
@@ -88,7 +95,7 @@ export async function getServerSideProps({ req, res, query }) {
         },
         dynamic: {
             initialImage: imageFromStreamStatus(result.live),
-            usedImageSet: scrambledImageSet(result.live),
+            usedImageSet: null, //set in Home.componentDidMount
             status: result.live,
             isError: false,
             pastStream: pastStreamResult,
@@ -271,6 +278,10 @@ export default class Home extends Component {
 
     componentDidMount() {
         this.timer = setInterval(() => this.refresh(), 90 * 1000)
+        //this is specifically not in refresh to avoid embedding in HTML
+        this.setState({
+            usedImageSet: scrambledImageSet(this.state)
+        })
     }
 
     componentWillUnmount() {
@@ -294,12 +305,11 @@ export default class Home extends Component {
             })
             .then((jsBody) => {
                 if (jsBody.ytStreamData) {
-                    const nextState = { isError: false, status: jsBody.ytStreamData.status, streamInfo: jsBody.ytStreamData.streamInfo, initialImage: null, usedImageSet: this.state.usedImageSet }
+                    const nextState = { isError: false, status: jsBody.ytStreamData.status, streamInfo: jsBody.ytStreamData.streamInfo, initialImage: null }
                     // If the stream status changes, the render layout we use can also change, which will reset the
                     // image to the initialImage. The code here is to make sure the initialImage is correct
                     // for the stream status.
                     // It is set to null above, but this is fine because it will only be looked at on layout changes.
-                    // usedImageSet on the other hand has to be always set, so it takes from the last state and gets rewritten if the state needs to change
                     if (nextState.status !== this.state.status) {
                         nextState.initialImage = imageFromStreamStatus(nextState.status)
                         nextState.usedImageSet = scrambledImageSet(nextState.status)
