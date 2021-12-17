@@ -28,7 +28,7 @@ function imageFromStreamStatus(status) {
 /**
  * Returns an imageset with its positions in the array scrambled.
  */
-function scrambledImageSet(status) {
+function scrambledImageSet(state) {
     let shuffle = function(array) {
         for (let i = array.length - 1; i > 0; i--) {
             let j = Math.floor(Math.random() * (i + 1))
@@ -38,10 +38,10 @@ function scrambledImageSet(status) {
         }
         return array
     }
-    if(status.isError) {
+    if (state.isError) {
         return shuffle([...ERROR_IMAGE_SET])
     }
-    switch(status) {
+    switch (state.status) {
         case STREAM_STATUS.LIVE:
         case STREAM_STATUS.STARTING_SOON:
             return shuffle([...HAVE_STREAM_IMAGE_SET])
@@ -312,7 +312,7 @@ export default class Home extends Component {
                     // It is set to null above, but this is fine because it will only be looked at on layout changes.
                     if (nextState.status !== this.state.status) {
                         nextState.initialImage = imageFromStreamStatus(nextState.status)
-                        nextState.usedImageSet = scrambledImageSet(nextState.status)
+                        nextState.usedImageSet = scrambledImageSet(nextState)
                     }
 
                     this.setState(nextState)
