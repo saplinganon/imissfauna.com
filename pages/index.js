@@ -5,15 +5,16 @@ import { ERROR_IMAGE_SET, HAVE_STREAM_IMAGE_SET, NO_STREAM_IMAGE_SET } from "../
 import { Component, useState } from "react"
 import { TextCountdown } from "../components/text_countdown"
 
-function selectRandomImage(fromSet, excludingImage) {
-    let excludeIndex
-    if (excludingImage && fromSet.length > 1 && (excludeIndex = fromSet.indexOf(excludingImage)) > -1) {
-        // This is to prevent the same image from being selected again.
-        const nextIndex = (Math.random() * (fromSet.length - 1)) | 0
-        return fromSet[nextIndex >= excludeIndex ? nextIndex + 1 : nextIndex]
-    }
-
+function selectRandomImage(fromSet) {
     return fromSet[(Math.random() * fromSet.length) | 0]
+}
+
+/**
+ * Returns the next image in an imageset, wrapping around to the start after reaching the end of the array.
+ */
+function selectNextImage(fromSet, currentImage) {
+    let nextIndex = fromSet.indexOf(currentImage) + 1
+    return fromSet[nextIndex % fromSet.length]
 }
 
 function imageFromStreamStatus(status) {
@@ -21,6 +22,33 @@ function imageFromStreamStatus(status) {
         return selectRandomImage(NO_STREAM_IMAGE_SET)
     } else {
         return selectRandomImage(HAVE_STREAM_IMAGE_SET)
+    }
+}
+
+/**
+ * Returns an imageset with its positions in the array scrambled.
+ */
+function scrambledImageSet(status) {
+    let shuffle = function(array) {
+        for (let i = array.length - 1; i > 0; i--) {
+            let j = Math.floor(Math.random() * (i + 1))
+            let temp = array[i]
+            array[i] = array[j]
+            array[j] = temp
+        }
+        return array
+    }
+    if(status.isError) {
+        return shuffle([...ERROR_IMAGE_SET])
+    }
+    switch(status) {
+        case STREAM_STATUS.LIVE:
+        case STREAM_STATUS.STARTING_SOON:
+            return shuffle([...HAVE_STREAM_IMAGE_SET])
+        case STREAM_STATUS.OFFLINE:
+        case STREAM_STATUS.INDETERMINATE:
+            return shuffle([...NO_STREAM_IMAGE_SET])
+
     }
 }
 
@@ -67,6 +95,7 @@ export async function getServerSideProps({ req, res, query }) {
         },
         dynamic: {
             initialImage: imageFromStreamStatus(result.live),
+            usedImageSet: null, //set in Home.componentDidMount
             status: result.live,
             isError: false,
             pastStream: pastStreamResult,
@@ -181,7 +210,7 @@ function LiveOrStartingSoonLayout(props) {
         <h1>{"I Don't Miss Fauna"}</h1>
         <StreamInfo status={props.status} info={props.streamInfo} />
         <img className={styles.bigImage} src={`${props.absolutePrefix}/${image}`} alt="wah" 
-            onClick={() => setImage(selectRandomImage(HAVE_STREAM_IMAGE_SET, image))} />
+            onClick={() => setImage(selectNextImage(props.usedImageSet, image))} />
         {pastStreamCounter}
         <CommonFooter channelLink={props.channelLink} actRefreshNow={props.actRefreshNow} />
     </div>
@@ -201,7 +230,7 @@ function NoStreamLayout(props) {
         </Head>
 
         <img className={styles.bigImage} src={`${props.absolutePrefix}/${image}`} alt="wah" 
-            onClick={() => setImage(selectRandomImage(NO_STREAM_IMAGE_SET, image))} />
+            onClick={() => setImage(selectNextImage(props.usedImageSet, image))} />
         <StreamInfo status={props.status} info={props.streamInfo} />
         {pastStreamCounter}
         <CommonFooter channelLink={props.channelLink} actRefreshNow={props.actRefreshNow} />
@@ -220,7 +249,7 @@ function ErrorLayout(props) {
             <meta content={`${props.absolutePrefix}/${image}`} property="og:image" />
         </Head>
         <img className={styles.bigImage} src={`${props.absolutePrefix}/${image}`} alt="wah" 
-            onClick={() => setImage(selectRandomImage(ERROR_IMAGE_SET, image))} />
+            onClick={() => setImage(selectNextImage(props.usedImageSet, image))} />
         <div className={`${styles.streamInfo} ${styles.streamInfoError}`}>
             <p>There was a problem checking stream status. <a href={props.channelLink}>{"You can check Fauna's channel yourself"}</a>!</p>
         </div>
@@ -249,6 +278,10 @@ export default class Home extends Component {
 
     componentDidMount() {
         this.timer = setInterval(() => this.refresh(), 90 * 1000)
+        //this is specifically not in refresh to avoid embedding in HTML
+        this.setState({
+            usedImageSet: scrambledImageSet(this.state)
+        })
     }
 
     componentWillUnmount() {
@@ -279,6 +312,7 @@ export default class Home extends Component {
                     // It is set to null above, but this is fine because it will only be looked at on layout changes.
                     if (nextState.status !== this.state.status) {
                         nextState.initialImage = imageFromStreamStatus(nextState.status)
+                        nextState.usedImageSet = scrambledImageSet(nextState.status)
                     }
 
                     this.setState(nextState)
