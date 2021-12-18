@@ -6,10 +6,11 @@ export class PostgresCoordinator {
         this.pool = new Pool()
     }
 
-    async getCachedStreamInfo(nearTime) {
+    async getCachedStreamInfo(nearTime, client) {
+        const executor = client || this.pool
         let res
         try {
-            res = await this.pool.query(
+            res = await executor.query(
                 `SELECT * FROM cached_stream_info WHERE type != $1 ORDER BY ABS($2 - start_time) LIMIT 1`, [STREAM_TYPE.DEAD, nearTime]
             )
         } catch (e) {
@@ -36,14 +37,12 @@ export class PostgresCoordinator {
         }
     }
 
-    async updateCache(streamInfos) {
+    async updateCache(streamInfos, client) {
         const ts = Date.now()
-        const client = await this.pool.connect()
-        try {
-            await client.query("BEGIN")
-            
+
+        const doUpdate = async (executor) => {
             await Promise.all(streamInfos.map(async (v) => {
-                await client.query(`
+                await executor.query(`
                     INSERT INTO cached_stream_info VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
                     ON CONFLICT (video_link) DO UPDATE SET
                         video_link      = excluded.video_link,
@@ -56,34 +55,52 @@ export class PostgresCoordinator {
                         last_check_time = excluded.last_check_time
                 `, [v.videoLink, v.live, v.title, v.thumbnail, v.streamStartTime?.getTime?.() || null, v.isMembersOnly, v.streamType, ts])
             }))
+        }
 
-            await client.query("COMMIT")
-        } catch (e) {
-            await client.query("ROLLBACK")
-            console.error("[updateCache]", "query error:", e)
-        } finally {
-            client.release()
+        let executor = client
+        if (!client) {
+            await this.transaction(doUpdate)
+        } else {
+            await doUpdate(client)
         }
     }
 
-    async setConfig(key, value) {
+    async setConfig(key, value, client) {
+        const executor = client || this.pool
         try {
-            await this.pool.query(`INSERT INTO config VALUES ($1, $2) ON CONFLICT (name) DO UPDATE SET val=excluded.val`, [key, value])
+            await executor.query(`INSERT INTO config VALUES ($1, $2) ON CONFLICT (name) DO UPDATE SET val=excluded.val`, [key, value])
         } catch (e) {
             console.error("[setConfig]", "query error:", e)
         }
     }
 
-    async getConfig(key) {
+    async getConfig(key, client) {
+        const executor = client || this.pool
         let res
         try {
-            res = await this.pool.query(`SELECT val FROM config WHERE name = $1 LIMIT 1`, [key])
+            res = await executor.query(`SELECT val FROM config WHERE name = $1 LIMIT 1`, [key])
         } catch (e) {
             console.error("[getConfig]", "query error:", e)
             return undefined
         }
         
         return res.rows[0]?.val
+    }
+
+    async transaction(f) {
+        const client = await this.pool.connect()
+        let retVal
+        try {
+            await client.query("BEGIN")
+            retVal = await f(client)
+            await client.query("COMMIT")
+        } catch (e) {
+            await client.query("ROLLBACK")
+            console.error("[transaction]", "query error:", e)
+        } finally {
+            client.release()
+        }
+        return retVal
     }
 }
 

@@ -87,9 +87,11 @@ export async function findExtraStreams(coordinator) {
     )
 
     if (!error) {
-        await coordinator.setConfig("last_tweet_id", result.latestTweet)
-        await coordinator.setConfig("last_twitter_check", Date.now().toString())
-        await coordinator.updateCache(result.streams)
+        await coordinator.transaction(async (client) => {
+            await coordinator.updateCache(result.streams, client)
+            await coordinator.setConfig("last_tweet_id", result.latestTweet, client)
+            await coordinator.setConfig("last_twitter_check", Date.now().toString(), client)
+        })
         return result.streams
     }
     

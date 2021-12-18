@@ -6,7 +6,7 @@ export class SQLiteCoordinator {
         this.connection = new sqlite3.Database(process.env.SQLITE_DB_PATH)
     }
 
-    getCachedStreamInfo(nearTime) {
+    getCachedStreamInfo(nearTime, _) {
         return new Promise((resolve, reject) => {
             this.connection.get(`SELECT * FROM cached_stream_info WHERE type != ? ORDER BY ABS(? - start_time)`, [STREAM_TYPE.DEAD, nearTime], (err, row) => {
                 if (err) {
@@ -34,7 +34,7 @@ export class SQLiteCoordinator {
         })
     }
 
-    async updateCache(streamInfos) {
+    async updateCache(streamInfos, _) {
         const ts = Date.now()
         this.connection.serialize(() => {
             const stmt = this.connection.prepare(`
@@ -56,11 +56,11 @@ export class SQLiteCoordinator {
         })
     }
 
-    async setConfig(key, value) {
+    async setConfig(key, value, _) {
         this.connection.run(`INSERT INTO config VALUES (?, ?) ON CONFLICT (name) DO UPDATE SET val=excluded.val`, [key, value])
     }
 
-    getConfig(key) {
+    getConfig(key, _) {
         return new Promise((resolve, reject) => {
             this.connection.get(`SELECT val FROM config WHERE name = ?`, [key], (err, row) => {
                 if (err) {
@@ -71,6 +71,10 @@ export class SQLiteCoordinator {
                 resolve(row?.val)
             })
         })
+    }
+
+    async transaction(f) {
+        return await f(this)
     }
 }
 
