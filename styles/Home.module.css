@@ -12,6 +12,10 @@
     margin: 0 auto;
 }
 
+.bigImage {
+    cursor: pointer;
+}
+
 .site small {
     font-size: 70%;
 }
