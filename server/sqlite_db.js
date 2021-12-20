@@ -76,12 +76,20 @@ export class SQLiteCoordinator {
     async transaction(f) {
         return await f(this)
     }
+
+    teardown() {
+        return new Promise((resolve) => {
+            this.connection.close((err) => {
+                if (err) {
+                    console.error("[teardown]", err)
+                }
+
+                resolve()
+            })
+        })
+    }
 }
 
 export async function getCoordinator() {
-    if (!global.sqliteDB) {
-        global.sqliteDB = new SQLiteCoordinator()
-    }
-
-    return global.sqliteDB
+    return new SQLiteCoordinator()
 }

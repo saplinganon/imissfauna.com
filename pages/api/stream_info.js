@@ -68,7 +68,9 @@ export default async function handler(req, res) {
 
     if (pastError && !useStreamInfo) {
         // No useful information
-        return res.status(200).json({ error: true, result: null })
+        res.status(200).json({ error: true, result: null })
+        await coordinator.teardown()
+        return
     }
 
     let responseValue = {
@@ -97,5 +99,7 @@ export default async function handler(req, res) {
         responseValue.result.pastStreamData = pastResult
     }
 
-    return res.status(200).json(responseValue)
+    res.status(200).json(responseValue)
+    await coordinator.teardown()
+    return
 }

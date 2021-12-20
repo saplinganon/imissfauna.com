@@ -28,9 +28,7 @@ async function revalidateCachedStream(coordinator, streamInfo, age) {
         return null
     }
 
-    if (process.env.USE_DUMMY_DATA !== "true") {
-        await coordinator.updateCache([refreshedInfo])
-    }
+    await coordinator.updateCache([refreshedInfo])
     return refreshedInfo
 }
 
@@ -76,7 +74,9 @@ export async function getLiveStreamData(mockKey) {
 }
 
 export async function findExtraStreams(coordinator) {
-    const [cfgLastTweet, cfgLastCheck] = await Promise.all([coordinator.getConfig("last_tweet_id"), coordinator.getConfig("last_twitter_check")])
+    const [cfgLastTweet, cfgLastCheck] = await coordinator.transaction(async () => {
+        return [await coordinator.getConfig("last_tweet_id"), await coordinator.getConfig("last_twitter_check")]
+    })
     if (cfgLastCheck && Date.now() - parseInt(cfgLastCheck) < 90000) {
         console.debug("[findExtraStreams]", "throttled")
         return null
@@ -85,13 +85,16 @@ export async function findExtraStreams(coordinator) {
     const { error, result } = await findLinksFromTwitter(
         process.env.WATCH_TWITTER_ID, process.env.WATCH_CHANNEL_ID, cfgLastTweet
     )
+    console.debug("[findExtraStreams]", "findLinksFromTwitter finished")
 
     if (!error) {
-        await coordinator.transaction(async (client) => {
-            await coordinator.updateCache(result.streams, client)
-            await coordinator.setConfig("last_tweet_id", result.latestTweet, client)
-            await coordinator.setConfig("last_twitter_check", Date.now().toString(), client)
+        await coordinator.transaction(async () => {
+            await coordinator.updateCache(result.streams)
+            await coordinator.setConfig("last_tweet_id", result.latestTweet)
+            await coordinator.setConfig("last_twitter_check", Date.now().toString())
         })
+
+        console.debug("[findExtraStreams]", "db update finished")
         return result.streams
     }
     

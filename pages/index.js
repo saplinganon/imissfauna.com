@@ -104,6 +104,7 @@ export async function getServerSideProps({ req, res, query }) {
         const { result, error } = await ds.getLiveStreamData(query.mock)
         if (error) {
             console.warn("livestream poll returned error:", error)
+            await coordinator.teardown()
             return { props: { 
                 showDebugBar: (process.env.USE_DUMMY_DATA === "true"),
                 passDown: { absolutePrefix, channelLink }, 
@@ -113,14 +114,19 @@ export async function getServerSideProps({ req, res, query }) {
 
         if (result.videoLink) {
             await coordinator.updateCache([result])
+            await coordinator.teardown()
         } else {
-            ds.findExtraStreams(coordinator).then(() => console.log("extra task done"))
+            ds.findExtraStreams(coordinator)
+                .then(() => console.log("extra task done"))
+                .then(() => coordinator.teardown())
             // Instruct the client to refresh after the extended check is done (hopefully).
             // Depending on latency this might need adjustment
             initialRefreshTime = 5
         }
 
         useStreamInfo = result
+    } else {
+        await coordinator.teardown()
     }
 
     return { props: {

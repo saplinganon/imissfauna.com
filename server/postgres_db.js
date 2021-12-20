@@ -1,16 +1,20 @@
-import { Pool } from "pg"
+import { Client } from "pg"
 import { STREAM_TYPE } from "../common/enums"
 
 export class PostgresCoordinator {
     constructor() {
-        this.pool = new Pool()
+        this.connection = new Client({connectionTimeoutMillis: 3000})
     }
 
-    async getCachedStreamInfo(nearTime, client) {
-        const executor = client || this.pool
+    async _connect() {
+        await this.connection.connect()
+        return this
+    }
+
+    async getCachedStreamInfo(nearTime) {
         let res
         try {
-            res = await executor.query(
+            res = await this.connection.query(
                 `SELECT * FROM cached_stream_info WHERE type != $1 ORDER BY ABS($2 - start_time) LIMIT 1`, [STREAM_TYPE.DEAD, nearTime]
             )
         } catch (e) {
@@ -37,12 +41,11 @@ export class PostgresCoordinator {
         }
     }
 
-    async updateCache(streamInfos, client) {
+    async updateCache(streamInfos) {
         const ts = Date.now()
-
-        const doUpdate = async (executor) => {
-            await Promise.all(streamInfos.map(async (v) => {
-                await executor.query(`
+        await this.transaction(async (client) => {
+            for (let v of streamInfos) {
+                await client.query(`
                     INSERT INTO cached_stream_info VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
                     ON CONFLICT (video_link) DO UPDATE SET
                         video_link      = excluded.video_link,
@@ -54,31 +57,22 @@ export class PostgresCoordinator {
                         type            = excluded.type,
                         last_check_time = excluded.last_check_time
                 `, [v.videoLink, v.live, v.title, v.thumbnail, v.streamStartTime?.getTime?.() || null, v.isMembersOnly, v.streamType, ts])
-            }))
-        }
-
-        let executor = client
-        if (!client) {
-            await this.transaction(doUpdate)
-        } else {
-            await doUpdate(client)
-        }
+            }
+        })
     }
 
-    async setConfig(key, value, client) {
-        const executor = client || this.pool
+    async setConfig(key, value) {
         try {
-            await executor.query(`INSERT INTO config VALUES ($1, $2) ON CONFLICT (name) DO UPDATE SET val=excluded.val`, [key, value])
+            await this.connection.query(`INSERT INTO config VALUES ($1, $2) ON CONFLICT (name) DO UPDATE SET val=excluded.val`, [key, value])
         } catch (e) {
             console.error("[setConfig]", "query error:", e)
         }
     }
 
-    async getConfig(key, client) {
-        const executor = client || this.pool
+    async getConfig(key) {
         let res
         try {
-            res = await executor.query(`SELECT val FROM config WHERE name = $1 LIMIT 1`, [key])
+            res = await this.connection.query(`SELECT val FROM config WHERE name = $1 LIMIT 1`, [key])
         } catch (e) {
             console.error("[getConfig]", "query error:", e)
             return undefined
@@ -88,26 +82,24 @@ export class PostgresCoordinator {
     }
 
     async transaction(f) {
-        const client = await this.pool.connect()
         let retVal
         try {
-            await client.query("BEGIN")
-            retVal = await f(client)
-            await client.query("COMMIT")
+            await this.connection.query("BEGIN")
+            retVal = await f(this.connection)
+            await this.connection.query("COMMIT")
         } catch (e) {
-            await client.query("ROLLBACK")
+            await this.connection.query("ROLLBACK")
             console.error("[transaction]", "query error:", e)
-        } finally {
-            client.release()
         }
         return retVal
+    }
+
+    async teardown() {
+        console.debug("[teardown]", "closing connection now")
+        await this.connection.end()
     }
 }
 
 export async function getCoordinator() {
-    if (!global.postgresDB) {
-        global.postgresDB = new PostgresCoordinator()
-    }
-
-    return global.postgresDB
+    return await (new PostgresCoordinator())._connect()
 }
