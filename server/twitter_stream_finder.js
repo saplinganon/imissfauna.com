@@ -1,4 +1,5 @@
 import { STREAM_STATUS, STREAM_TYPE } from "../common/enums"
+import { fetchWithTimeout } from "../common/utils"
 
 async function getTweets(forUser, afterTweetID) {
     console.debug("[getTweets]", "called with args:", { forUser, afterTweetID })
@@ -12,15 +13,16 @@ async function getTweets(forUser, afterTweetID) {
     }
 
     try {
-        const res = await fetch(url, {
+        const res = await fetchWithTimeout(url, {
             headers: { "Authorization": `Bearer ${process.env.TWITTER_BEARER_TOKEN}` }
-        })
+        }, undefined, "Get Tweets")
         if (res.status !== 200) {
             return { error: `HTTP status: ${res.status}`, result: null }
         }
         const twitterData = await res.json()
         return { error: null, result: twitterData }
     } catch (e) {
+        console.error("[getTweets]", "fetch error:", e)
         return { error: e.toString(), result: null }
     }
 }
@@ -70,12 +72,12 @@ async function queryMultiVideoInfo(videoIDs) {
     const idList = videoIDs.join(",")
 
     try {
-        const res = await fetch(
+        const res = await fetchWithTimeout(
             `https://youtube.googleapis.com/youtube/v3/videos?part=snippet,contentDetails,liveStreamingDetails,status&id=${idList}&key=${apiKey}`, {
             headers: {
                 "Accept": "application/json",
-            }
-        })
+            },
+        }, undefined, "Get YouTube Video Info")
         if (res.status !== 200) {
             try {
                 const errorDetail = await res.json()
@@ -87,6 +89,7 @@ async function queryMultiVideoInfo(videoIDs) {
         const data = await res.json()
         return { error: null, result: data.items }
     } catch (e) {
+        console.error("[queryMultiVideoInfo]", "fetch error:", e)
         return { error: e.toString(), result: null }
     }
 }

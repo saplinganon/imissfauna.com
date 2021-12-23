@@ -12,6 +12,7 @@ export class PostgresCoordinator {
     }
 
     async getCachedStreamInfo(nearTime) {
+        console.debug("[getCachedStreamInfo]", "enter")
         let res
         try {
             res = await this.connection.query(
@@ -22,6 +23,7 @@ export class PostgresCoordinator {
             return { streamInfo: null, lastCheck: null }
         }
 
+        console.debug("[getCachedStreamInfo]", "exit")
         let row = res.rows[0]
         if (row) {
             return {
@@ -43,6 +45,7 @@ export class PostgresCoordinator {
 
     async updateCache(streamInfos) {
         const ts = Date.now()
+        console.debug("[updateCache]", "enter")
         await this.transaction(async (client) => {
             for (let v of streamInfos) {
                 await client.query(`
@@ -59,17 +62,21 @@ export class PostgresCoordinator {
                 `, [v.videoLink, v.live, v.title, v.thumbnail, v.streamStartTime?.getTime?.() || null, v.isMembersOnly, v.streamType, ts])
             }
         })
+        console.debug("[updateCache]", "exit")
     }
 
     async setConfig(key, value) {
+        console.debug("[setConfig]", "enter")
         try {
             await this.connection.query(`INSERT INTO config VALUES ($1, $2) ON CONFLICT (name) DO UPDATE SET val=excluded.val`, [key, value])
         } catch (e) {
             console.error("[setConfig]", "query error:", e)
         }
+        console.debug("[setConfig]", "exit")
     }
 
     async getConfig(key) {
+        console.debug("[getConfig]", "enter")
         let res
         try {
             res = await this.connection.query(`SELECT val FROM config WHERE name = $1 LIMIT 1`, [key])
@@ -77,7 +84,8 @@ export class PostgresCoordinator {
             console.error("[getConfig]", "query error:", e)
             return undefined
         }
-        
+
+        console.debug("[getConfig]", "exit")
         return res.rows[0]?.val
     }
 

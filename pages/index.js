@@ -4,6 +4,7 @@ import { STREAM_STATUS } from "../common/enums"
 import { ERROR_IMAGE_SET, HAVE_STREAM_IMAGE_SET, NO_STREAM_IMAGE_SET } from "../imagesets"
 import { Component, useState } from "react"
 import { TextCountdown } from "../components/text_countdown"
+import { fetchWithTimeout } from '../common/utils'
 
 function selectRandomImage(fromSet) {
     return fromSet[(Math.random() * fromSet.length) | 0]
@@ -354,7 +355,7 @@ export default class Home extends Component {
         }
 
         this.isRequestInFlight = true
-        fetch("/api/stream_info" + this.queryString)
+        fetchWithTimeout("/api/stream_info" + this.queryString)
             .then((res) => res.json())
             .then((json) => {
                 if (json.error !== false) {

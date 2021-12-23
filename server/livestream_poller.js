@@ -1,5 +1,6 @@
 import { parse } from "node-html-parser"
 import { STREAM_STATUS, STREAM_TYPE } from "../common/enums"
+import { fetchWithTimeout } from "../common/utils"
 
 function createPollRoute(channelID) {
     return `https://www.youtube.com/channel/${channelID}/live`
@@ -24,7 +25,7 @@ function extractInitialPlayerResponse(fromScript) {
 
 export async function fetchLivestreamPage(channelID) {
     try {
-        const res = await fetch(createPollRoute(channelID))
+        const res = await fetchWithTimeout(createPollRoute(channelID), {}, undefined, "Get YouTube /live")
         if (res.status !== 200) {
             return { error: `HTTP status: ${res.status}`, result: null }
         }

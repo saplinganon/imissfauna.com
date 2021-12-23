@@ -1,10 +1,12 @@
+import { fetchWithTimeout } from "../common/utils"
+
 function createPollRoute(channelID) {
     return `https://holodex.net/api/v2/channels/${channelID}/videos?lang=en&type=stream%2Cplaceholder&include=live_info&limit=24&offset=0&paginated=true`
 }
 
 async function fetchPaststreamPage(channelID) {
     try {
-        const res = await fetch(createPollRoute(channelID))
+        const res = await fetchWithTimeout(createPollRoute(channelID), {}, undefined, "Get Holodex Stream Info")
         if (res.status !== 200) {
             return { error: `HTTP status: ${res.status}`, result: null }
         }
