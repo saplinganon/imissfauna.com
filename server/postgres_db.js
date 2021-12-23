@@ -3,12 +3,21 @@ import { STREAM_TYPE } from "../common/enums"
 
 export class PostgresCoordinator {
     constructor() {
-        this.connection = new Client({connectionTimeoutMillis: 3000})
+        this.connection = null
     }
 
     async _connect() {
-        await this.connection.connect()
-        return this
+        for (let i = 0; i < 3; ++i) {
+            try {
+                this.connection = new Client({connectionTimeoutMillis: 1500})
+                await this.connection.connect()
+                return this
+            } catch (e) {
+                console.error("[_connect]", "error connecting", e)
+            }
+        }
+
+        throw new Error("[_connect]: all connection attempts failed")
     }
 
     async getCachedStreamInfo(nearTime) {
