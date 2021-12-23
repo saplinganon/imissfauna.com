@@ -60,13 +60,8 @@ export default async function handler(req, res) {
         }
     }
 
-    const { pastResult, pastError } = await pastStreamPromise
-
-    if (pastError) {
-        console.warn("holodex poll returned error:", pastError)
-    }
-
-    if (pastError && !useStreamInfo) {
+    const pastResult = await pastStreamPromise
+    if (!pastResult && !useStreamInfo) {
         // No useful information
         res.status(200).json({ error: true, result: null })
         await coordinator.teardown()
