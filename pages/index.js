@@ -2,9 +2,12 @@ import styles from '../styles/Home.module.css'
 import Head from "next/head"
 import { STREAM_STATUS } from "../common/enums"
 import { ERROR_IMAGE_SET, HAVE_STREAM_IMAGE_SET, NO_STREAM_IMAGE_SET } from "../imagesets"
-import { Component, useState } from "react"
+import { Component, createContext, useContext, useState } from "react"
 import { TextCountdown } from "../components/text_countdown"
 import { fetchWithTimeout } from '../common/utils'
+import ornamentStyles from "../styles/ornaments.module.css"
+
+const RenderDateContext = createContext(null)
 
 function selectRandomImage(fromSet) {
     return fromSet[(Math.random() * fromSet.length) | 0]
@@ -174,13 +177,18 @@ function createEmbedDescription(status, streamInfo) {
     }
 }
 
+function isDateChristmas(date) {
+    return date.getMonth() == 11 && (date.getDate() >= 23 && date.getDate() <= 26)
+}
+
 function StreamInfo(props) {
-    let link, text, boxExtraClass = "", thumb
+    const renderDate = useContext(RenderDateContext)
+    let link, text, boxExtraClasses = "", thumb
     if (isStreamInfoValid(props.info)) {
         switch (props.status) {
             case STREAM_STATUS.LIVE:
                 text = "LIVE"
-                boxExtraClass = styles.streamInfoLive
+                boxExtraClasses = styles.streamInfoLive
                 break
             case STREAM_STATUS.STARTING_SOON:
                 text = "Starting Soon"
@@ -203,7 +211,11 @@ function StreamInfo(props) {
         forPast: "(%@ ago)",
     }
 
-    return <div className={`${styles.streamInfo} ${boxExtraClass}`}>
+    if (isDateChristmas(renderDate)) {
+        boxExtraClasses += ` ${ornamentStyles.santaHat}`
+    }
+
+    return <div className={`${styles.streamInfo} ${boxExtraClasses}`}>
         <div className={styles.vstack}>
             <p className={`${styles.streamInfoHead}`}>
                 {text} {props.status != STREAM_STATUS.LIVE && props.info?.startTime ? 
@@ -422,10 +434,13 @@ export default class Home extends Component {
 
         if (!layout) throw "Layout not set."
 
+        // FIXME: Not timezone accurate.
         return <div className={styles.site}>
-            <CommonMetadata />
-            {layout}
-            {this.props.showDebugBar ? this.debugBar() : null}
+            <RenderDateContext.Provider value={new Date()}>
+                <CommonMetadata />
+                {layout}
+                {this.props.showDebugBar ? this.debugBar() : null}
+            </RenderDateContext.Provider>
         </div>
     }
 }

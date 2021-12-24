@@ -1,0 +1,16 @@
+.santaHat {
+    position: relative;
+}
+
+.santaHat::after {
+    content: " ";
+    position: absolute;
+    pointer-events: none;
+    background: url("/ornaments/santahat@2x.png");
+    background-size: 156px 141px;
+    top: -76px;
+    right: -60px;
+    width: 156px;
+    height: 141px;
+    overflow-x: hidden;
+}
