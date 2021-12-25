@@ -22,7 +22,7 @@ function extractPaststreamInfo(fromPageContent) {
         return e.status === 'past' &&
             e.type === 'stream' &&
             e.topic_id !== 'shorts' &&
-            e.duration >= 1800 && 
+            e.duration >= 600 && 
             e.end_actual
     }) || null
     return lastStream ? {
