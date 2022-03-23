@@ -233,7 +233,6 @@ function PastStreamCounter(props) {
 
 function CommonMetadata() {
     return <Head>
-        <title>I MISS FAUNA</title>
         <meta name="viewport" content="initial-scale=1.0, width=device-width" />
         <meta name="theme-color" content="#c3f0ce" />
         <meta content="I MISS FAUNA" property="og:title" />
@@ -244,12 +243,18 @@ function CommonMetadata() {
 function LiveOrStartingSoonLayout(props) {
     const [image, setImage] = useState(props.initialImage)
     let pastStreamCounter = null
+    let pageEmoji = "🔴"
     if (props.status !== STREAM_STATUS.LIVE && props.pastStream?.endActual) {
         pastStreamCounter = <PastStreamCounter date={props.pastStream.endActual} />
     }
 
+    if (props.status !== STREAM_STATUS.LIVE) {
+        pageEmoji = "🕒"
+    }
+
     return <div className="comfy">
         <Head>
+            <title>{pageEmoji} I MISS FAUNA</title>
             <meta content={createEmbedDescription(props.status, props.streamInfo)} property="og:description" />
             <meta content={`${props.absolutePrefix}/${image}`} property="og:image" />
         </Head>
@@ -272,6 +277,7 @@ function NoStreamLayout(props) {
 
     return <div className="miss-her">
         <Head>
+            <title>I MISS FAUNA</title>
             <meta content={createEmbedDescription(props.status, props.streamInfo)} property="og:description" />
             <meta content={`${props.absolutePrefix}/${image}`} property="og:image" />
         </Head>
@@ -293,6 +299,7 @@ function ErrorLayout(props) {
 
     return <div className="error">
         <Head>
+            <title>I MISS FAUNA</title>
             <meta content={`${props.absolutePrefix}/${image}`} property="og:image" />
         </Head>
         <img className={styles.bigImage} src={`${props.absolutePrefix}/${image}`} alt="wah" 
