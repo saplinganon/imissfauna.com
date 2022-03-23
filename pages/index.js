@@ -309,7 +309,8 @@ function CommonFooter(props) {
     return <footer>
         <a href={props.channelLink}>Ceres Fauna Ch. hololive-EN</a> <br />
         <small>
-            Not affiliated with Fauna or hololive - <a href="https://github.com/saplinganon/imissfauna.com">Source</a>
+            Not affiliated with Fauna or hololive - Past stream data
+            provided by Holodex - <a href="https://github.com/saplinganon/imissfauna.com">Source</a>
         </small>
     </footer>
 }
