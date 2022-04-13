@@ -8,7 +8,7 @@ export default async function handler(req, res) {
     const coordinator = await getDatabase()
     const vodInfo = await coordinator.getVod()
     await coordinator.teardown()
-    
+
     if (vodInfo) {
         res.status(200).json({
             vod: {

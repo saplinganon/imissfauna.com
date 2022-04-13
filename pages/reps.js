@@ -54,7 +54,7 @@ function VideoInfo(props) {
 
 export default function Reps(props) {
     const { data, isValidating, mutate } = useSWR("/api/random_vod", (url) => fetch(url).then(r => r.json()), {
-        fallbackData: {vod: props.vod},
+        fallbackData: {vod: props.vod, error: props.error},
         revalidateOnFocus: false,
         revalidateOnMount: false,
         revalidateOnReconnect: false,
@@ -71,7 +71,11 @@ export default function Reps(props) {
             <p className={styles.bareTextContainer}>
                 Watch this one!
             </p>
-            <VideoInfo vod={data.vod} />
+            {data.error
+                ? <div className={`${styles.streamInfo} ${styles.streamInfoError}`}>
+                    <p>A problem occurred while getting a random video: {data.error}</p>
+                </div> 
+                : <VideoInfo vod={data.vod} />}
             <button className={styles.bigButton} onClick={() => mutate()}>
                 Reroll
             </button>
