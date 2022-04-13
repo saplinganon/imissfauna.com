@@ -97,6 +97,22 @@ export class PostgresCoordinator {
         console.debug("[getConfig]", "exit")
         return res.rows[0]?.val
     }
+    
+    async getVod() {
+        console.debug("[getVod]", "enter")
+        let res
+        try {
+            // FIXME: slow due to use of order by random()
+            //      should fix later
+            res = await this.connection.query(`SELECT video_link, title, thumbnail FROM vod ORDER BY random() LIMIT 1`)
+        } catch (e) {
+            console.error("[getVod]", "query error:", e)
+            return undefined
+        }
+
+        console.debug("[getVod]", "exit")
+        return res.rows[0]
+    }
 
     async transaction(f) {
         let retVal
