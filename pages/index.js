@@ -1,5 +1,6 @@
 import styles from '../styles/Home.module.css'
 import Head from "next/head"
+import Link from "next/link"
 import { STREAM_STATUS } from "../common/enums"
 import { ERROR_IMAGE_SET, HAVE_STREAM_IMAGE_SET, NO_STREAM_IMAGE_SET } from "../imagesets"
 import { Component, useState } from "react"
@@ -278,7 +279,7 @@ function NoStreamLayout(props) {
             onClick={() => setImage(selectNextImage(props.usedImageSet, image))} />
         <StreamInfo status={props.status} info={props.streamInfo} />
         {pastStreamCounter}
-        <p><a href="/reps">Do your reps</a></p>
+        <p><Link href="/reps"><a>Do your reps</a></Link></p>
         <CommonFooter channelLink={props.channelLink} actRefreshNow={props.actRefreshNow} />
     </div>
 }

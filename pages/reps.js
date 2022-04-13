@@ -1,5 +1,6 @@
 import styles from '../styles/Home.module.css'
 import Head from "next/head"
+import Link from "next/link"
 import { Component, useState } from "react"
 import { CommonMetadata, CommonFooter } from "../components/page_meta"
 
@@ -58,11 +59,13 @@ export default function Reps(props) {
                 Try this:
             </p>
             <VideoInfo vod={props.vod} />
-            <a className={styles.bigButton} href="/reps" onClick={() => setReloading(true)}>
-                Give me another
-            </a>
+            <Link href="/reps">
+                <a className={styles.bigButton} onClick={() => setReloading(true)}>
+                    Give me another
+                </a>
+            </Link>
               
-            <p><a href="/">Back to stream tracker</a></p>
+            <p><Link href="/"><a>Back to stream tracker</a></Link></p>
             <CommonFooter channelLink={props.channelLink} />
         </div>
     </div>
