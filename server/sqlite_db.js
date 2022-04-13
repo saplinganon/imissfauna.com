@@ -53,6 +53,8 @@ export class SQLiteCoordinator {
             streamInfos.forEach((v) => {
                 stmt.run([v.videoLink, v.live, v.title, v.thumbnail, v.streamStartTime?.getTime?.() || null, v.isMembersOnly, v.streamType, ts])
             })
+            
+            stmt.finalize()
         })
     }
 
@@ -69,6 +71,19 @@ export class SQLiteCoordinator {
                 } 
                 
                 resolve(row?.val)
+            })
+        })
+    }
+    
+    getVod() {
+        return new Promise((resolve, reject) => {
+            this.connection.get(`SELECT video_link, title, thumbnail FROM vod ORDER BY random() LIMIT 1`, (err, row) => {
+                if (err) {
+                    console.error("[getVod]", "query error:", err)
+                    return resolve(undefined)
+                } 
+                
+                resolve(row)
             })
         })
     }

@@ -3,6 +3,7 @@ import Head from "next/head"
 import { STREAM_STATUS } from "../common/enums"
 import { ERROR_IMAGE_SET, HAVE_STREAM_IMAGE_SET, NO_STREAM_IMAGE_SET } from "../imagesets"
 import { Component, useState } from "react"
+import { CommonMetadata, CommonFooter } from "../components/page_meta"
 import { TextCountdown } from "../components/text_countdown"
 import { fetchWithTimeout } from '../common/utils'
 
@@ -231,15 +232,6 @@ function PastStreamCounter(props) {
     </div>
 }
 
-function CommonMetadata() {
-    return <Head>
-        <meta name="viewport" content="initial-scale=1.0, width=device-width" />
-        <meta name="theme-color" content="#c3f0ce" />
-        <meta content="I MISS FAUNA" property="og:title" />
-        <meta name="twitter:card" content="summary_large_image" />
-    </Head>
-}
-
 function LiveOrStartingSoonLayout(props) {
     const [image, setImage] = useState(props.initialImage)
     let pastStreamCounter = null
@@ -286,6 +278,7 @@ function NoStreamLayout(props) {
             onClick={() => setImage(selectNextImage(props.usedImageSet, image))} />
         <StreamInfo status={props.status} info={props.streamInfo} />
         {pastStreamCounter}
+        <p><a href="/reps">Do your reps</a></p>
         <CommonFooter channelLink={props.channelLink} actRefreshNow={props.actRefreshNow} />
     </div>
 }
@@ -310,16 +303,6 @@ function ErrorLayout(props) {
         {pastStreamCounter}
         <CommonFooter channelLink={props.channelLink} actRefreshNow={props.actRefreshNow} />
     </div>
-}
-
-function CommonFooter(props) {
-    return <footer>
-        <a href={props.channelLink}>Ceres Fauna Ch. hololive-EN</a> <br />
-        <small>
-            Not affiliated with Fauna or hololive - Past stream data
-            provided by Holodex - <a href="https://github.com/saplinganon/imissfauna.com">Source</a>
-        </small>
-    </footer>
 }
 
 export default class Home extends Component {

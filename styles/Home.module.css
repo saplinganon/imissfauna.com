@@ -5,7 +5,7 @@
     padding: 1rem;
 }
 
-.site .bigImage, .streamInfo {
+.site .bigImage, .site .bigButton, .streamInfo, .bareTextContainer {
     display: block;
     max-width: 480px;
     width: 100%;
@@ -53,6 +53,11 @@
 
 .streamInfo a {
     font-weight: bold;
+    text-decoration: none;
+}
+
+.streamInfo a:hover {
+    text-decoration: underline;
 }
 
 /* This makes the entire box a tap target for the link inside. */
@@ -95,16 +100,51 @@
     margin: 0;
 }
 
+p.streamInfoHead {
+    margin-bottom: 0.1rem!important;
+}
+
 .pastStreamInfo {
     background: rgb(174, 250, 197);
     border-color: rgb(130, 206, 147);
     justify-content: center;
 }
 
-.streamInfo + .pastStreamInfo {
+.streamInfo + .pastStreamInfo, .streamInfo + .bigButton {
     margin-top: -0.8rem;
 }
 
 .countdown {
     text-transform: none;
+}
+
+.isReloading .streamInfo {
+    opacity: 0.5;
+}
+
+.bigButton {
+    display: block;
+    background: linear-gradient(rgb(70, 200, 101) 0%, rgb(14, 162, 47) 100%);
+    border: 1px solid #054514;
+    border-radius: 6px;
+    padding: 0.8rem;
+    margin: 2rem auto;
+    width: 100%;
+    text-align: center;
+    box-shadow: 4px 4px 0px 1px rgba(0, 0, 0, 0.07);
+    
+    color: #ffffff;
+    text-decoration: none;
+    font-weight: bold;
+}
+
+.bigButton:active {
+    transform: translateY(2px);
+    box-shadow: 4px 2px 0px 1px rgba(0, 0, 0, 0.07);
+}
+
+.bareTextContainer {
+  padding: 0 0.8rem;
+  margin: 0 auto -1rem auto;
+  text-align: left;
 }
