@@ -7,6 +7,14 @@ body {
     background: #c3f0ce;
 }
 
+a {
+    color: rgb(54, 108, 54);
+}
+
+a:visited {
+    color: rgb(16, 116, 104);
+}
+
 * {
     box-sizing: border-box;
 }

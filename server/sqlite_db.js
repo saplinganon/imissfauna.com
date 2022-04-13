@@ -77,7 +77,7 @@ export class SQLiteCoordinator {
     
     getVod() {
         return new Promise((resolve, reject) => {
-            this.connection.get(`SELECT video_link, title, thumbnail FROM vod ORDER BY random() LIMIT 1`, (err, row) => {
+            this.connection.get(`SELECT video_link, title, thumbnail, uploaded_date, _last_valid FROM vod ORDER BY random() LIMIT 1`, (err, row) => {
                 if (err) {
                     console.error("[getVod]", "query error:", err)
                     return resolve(undefined)

@@ -97,11 +97,7 @@
 }
 
 .streamInfo p {
-    margin: 0;
-}
-
-p.streamInfoHead {
-    margin-bottom: 0.1rem!important;
+    margin: 0 0 0.1rem 0;
 }
 
 .pastStreamInfo {
@@ -124,8 +120,8 @@ p.streamInfoHead {
 
 .bigButton {
     display: block;
-    background: linear-gradient(rgb(70, 200, 101) 0%, rgb(14, 162, 47) 100%);
-    border: 1px solid #054514;
+    background: linear-gradient(rgb(70, 200, 101) 0%, rgb(36, 175, 66) 100%);
+    border: 1px solid #247938;
     border-radius: 6px;
     padding: 0.8rem;
     margin: 2rem auto;
@@ -136,6 +132,7 @@ p.streamInfoHead {
     color: #ffffff;
     text-decoration: none;
     font-weight: bold;
+    font-size: 100%
 }
 
 .bigButton:active {

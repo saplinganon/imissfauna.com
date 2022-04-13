@@ -102,7 +102,7 @@ export class PostgresCoordinator {
         console.debug("[getVod]", "enter")
         let res
         try {
-            res = await this.connection.query(`SELECT video_link, title, thumbnail FROM vod LIMIT 1 OFFSET (floor(random() * (SELECT num_vods FROM vod_count)))`)
+            res = await this.connection.query(`SELECT video_link, title, thumbnail, uploaded_date, _last_valid FROM vod LIMIT 1 OFFSET (floor(random() * (SELECT num_vods FROM vod_count)))`)
         } catch (e) {
             console.error("[getVod]", "query error:", e)
             return undefined
