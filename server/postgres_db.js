@@ -102,9 +102,7 @@ export class PostgresCoordinator {
         console.debug("[getVod]", "enter")
         let res
         try {
-            // FIXME: slow due to use of order by random()
-            //      should fix later
-            res = await this.connection.query(`SELECT video_link, title, thumbnail FROM vod ORDER BY random() LIMIT 1`)
+            res = await this.connection.query(`SELECT video_link, title, thumbnail FROM vod LIMIT 1 OFFSET (floor(random() * (SELECT num_vods FROM vod_count)))`)
         } catch (e) {
             console.error("[getVod]", "query error:", e)
             return undefined

@@ -21,12 +21,5 @@ CREATE TABLE IF NOT EXISTS vod (
     uploaded_date INT,
     length_seconds INT,
     members_only INT,
-    _last_valid INT,
-    _seq INT
-);
-
-CREATE TABLE IF NOT EXISTS vod_tag (
-    video_link TEXT PRIMARY KEY,
-    tag TEXT,
-    FOREIGN KEY (video_link) REFERENCES vod (video_link) ON DELETE CASCADE
+    _last_valid INT
 );
