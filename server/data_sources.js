@@ -7,6 +7,7 @@ async function revalidateCachedStream(coordinator, streamInfo, age) {
     if (!streamInfo) {
         return null
     }
+    return null
 
     console.debug("[revalidateCachedStream]", "time since last check:", age)
     if (streamInfo.streamType == STREAM_TYPE.LIVE_STREAM && !streamInfo.isMembersOnly) {

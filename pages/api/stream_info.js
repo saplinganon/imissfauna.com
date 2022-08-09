@@ -1,5 +1,5 @@
 import { STREAM_STATUS, STREAM_TYPE } from "../../common/enums"
-import { getDatabase, getKnownStreamData, getLiveStreamData, getPastStream, findExtraStreams } from "../../server/data_sources"
+import { getDatabase, getKnownStreamData, getLiveStreamData, findExtraStreams } from "../../server/data_sources"
 
 function chooseBest(streams) {
     if (!streams) {
@@ -38,7 +38,6 @@ export default async function handler(req, res) {
     }
 
     let useStreamInfo = await getKnownStreamData(coordinator)
-    const pastStreamPromise = getPastStream()
     if (!useStreamInfo) {
         const { result, error } = await getLiveStreamData(req.query.mock)
         if (error) {
@@ -60,24 +59,15 @@ export default async function handler(req, res) {
         }
     }
 
-    const pastResult = await pastStreamPromise
-    if (!pastResult && !useStreamInfo) {
-        // No useful information
-        res.status(200).json({ error: true, result: null })
+    if (!useStreamInfo) {
+        res.status(503).json({ error: true, result: null })
         await coordinator.teardown()
         return
     }
 
-    let responseValue = {
+    res.status(200).json({
         error: false, 
         result: {
-            ytStreamData: null,
-            pastStreamData: null,
-        }
-    }
-
-    if (useStreamInfo) {
-        responseValue.result.ytStreamData = {
             status: useStreamInfo.live,
             streamInfo: {
                 link: useStreamInfo.videoLink,
@@ -88,13 +78,6 @@ export default async function handler(req, res) {
                 streamType: useStreamInfo.streamType,
             }
         }
-    }
-
-    if (pastResult) {
-        responseValue.result.pastStreamData = pastResult
-    }
-
-    res.status(200).json(responseValue)
+    })
     await coordinator.teardown()
-    return
 }
