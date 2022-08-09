@@ -11,12 +11,12 @@ export default async function handler(req, res) {
 
     if (vodInfo) {
         res.status(200).json({
-            vod: {
-                videoURL: `https://www.youtube.com/watch?v=${vodInfo.video_link}`,
+            info: {
+                link: `https://www.youtube.com/watch?v=${vodInfo.video_link}`,
                 title: vodInfo.title,
-                thumbnailURL: vodInfo.thumbnail,
-                uploadDate: vodInfo.uploaded_date
+                thumbnail: vodInfo.thumbnail,
             },
+            uploadDate: vodInfo.uploaded_date
         })
     } else {
         res.status(503).json({

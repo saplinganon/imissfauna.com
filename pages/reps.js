@@ -4,6 +4,7 @@ import Link from "next/link"
 import React from "react"
 import { CommonMetadata, CommonFooter } from "../components/page_meta"
 import useSWR from 'swr'
+import { VideoBox } from '../components/video_box'
 
 export async function getServerSideProps({ req, res, query }) {
     const ds = await import("../server/data_sources")
@@ -15,12 +16,12 @@ export async function getServerSideProps({ req, res, query }) {
     if (vodInfo) {
         return {
             props: {
-                vod: {
-                    videoURL: `https://www.youtube.com/watch?v=${vodInfo.video_link}`,
+                info: {
+                    link: `https://www.youtube.com/watch?v=${vodInfo.video_link}`,
                     title: vodInfo.title,
-                    thumbnailURL: vodInfo.thumbnail,
-                    uploadDate: vodInfo.uploaded_date
+                    thumbnail: vodInfo.thumbnail
                 },
+                uploadDate: vodInfo.uploaded_date,
                 channelLink: `https://www.youtube.com/channel/${process.env.WATCH_CHANNEL_ID}`
             }
         }
@@ -35,26 +36,18 @@ export async function getServerSideProps({ req, res, query }) {
     }
 }
 
-function VideoInfo(props) {
-    const date = new Date(props.vod.uploadDate)
+function VodInfo(props) {
+    const date = new Date(props.uploadDate)
+    const caption = `Streamed or uploaded on ${date.toLocaleDateString("en-US", {month: "short", day: "numeric", year: "numeric"})}`
 
     return <div className={styles.streamInfo}>
-        <div className={styles.vstack}>
-            <p>
-                <a href={props.vod.videoURL}>{props.vod.title}</a>
-            </p>
-            <p className={`${styles.streamInfoHead} ${styles.countdown}`}>
-                Streamed or uploaded on {date.toLocaleDateString("en-US", {month: "short", day: "numeric", year: "numeric"})}
-            </p>
-            {props.vod.isMembersOnly ? <p>(for Faunatics only!)</p> : null}
-        </div>
-        <img src={props.vod.thumbnailURL} alt="thumbnail" width={120} />
+        <VideoBox info={props.info} caption={caption} />
     </div>
 }
 
 export default function Reps(props) {
     const { data, isValidating, mutate } = useSWR("/api/random_vod", (url) => fetch(url).then(r => r.json()), {
-        fallbackData: {vod: props.vod, error: props.error},
+        fallbackData: {info: props.info, error: props.error},
         revalidateOnFocus: false,
         revalidateOnMount: false,
         revalidateOnReconnect: false,
@@ -75,7 +68,7 @@ export default function Reps(props) {
                 ? <div className={`${styles.streamInfo} ${styles.streamInfoError}`}>
                     <p>A problem occurred while getting a random video: {data.error}</p>
                 </div> 
-                : <VideoInfo vod={data.vod} />}
+                : <VodInfo info={data.info} uploadDate={data.uploadDate} />}
             <button className={styles.bigButton} onClick={() => mutate()}>
                 Reroll
             </button>
