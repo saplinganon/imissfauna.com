@@ -39,24 +39,20 @@
     text-align: left;
     box-shadow: 4px 4px 0px 1px rgba(0, 0, 0, 0.07);
     position: relative;
-
-    display: flex;
-    flex-direction: row;
-    align-items: flex-start;
 }
 
-.streamInfo img {
+.videoBox img {
     margin-left: 0.8rem;
     border-radius: 3px;
     border: 1px solid rgb(117, 207, 137);
 }
 
-.streamInfo a {
+.videoBox a {
     font-weight: bold;
 }
 
 /* This makes the entire box a tap target for the link inside. */
-.streamInfo a::after {
+.videoBox a::after {
     content: " ";
     position: absolute;
     top: 0;
@@ -65,19 +61,25 @@
     bottom: 0;
 }
 
-.streamInfoHead {
+.videoBox {
+    display: flex;
+    flex-direction: row;
+    align-items: flex-start;
+}
+
+.videoBoxCaption {
     font-size: 80%;
     font-weight: bold;
     color: rgb(66, 105, 90);
     text-transform: uppercase;
 }
 
-.streamInfoLive, .streamInfoLive img {
+.streamInfoLive, .streamInfoLive .videoBox img {
     background: rgb(243, 78, 78);
     border-color: #c70707;
 }
 
-.streamInfoLive .streamInfoHead {
+.streamInfoLive .videoBoxCaption {
     color: rgb(255, 240, 240);
 }
 
@@ -91,14 +93,14 @@
     color: white;
 }
 
-.streamInfo p {
+.vstack p {
     margin: 0;
 }
 
 .pastStreamInfo {
     background: rgb(174, 250, 197);
     border-color: rgb(130, 206, 147);
-    justify-content: center;
+    text-align: center;
 }
 
 .streamInfo + .pastStreamInfo {

@@ -27,6 +27,8 @@ function extractPaststreamInfo(fromPageContent) {
     }) || null
     return lastStream ? {
         // Whitelisting the fields to make frontend debugging easier
+        videoLink: `https://www.youtube.com/watch?v=${lastStream.id}`,
+        title: lastStream.title,
         endActual: Date.parse(lastStream.end_actual)
     } : null
 }

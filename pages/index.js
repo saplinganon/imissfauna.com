@@ -1,10 +1,11 @@
 import styles from '../styles/Home.module.css'
 import Head from "next/head"
+import useSWR from "swr"
 import { STREAM_STATUS } from "../common/enums"
 import { ERROR_IMAGE_SET, HAVE_STREAM_IMAGE_SET, NO_STREAM_IMAGE_SET } from "../imagesets"
-import { Component, useState } from "react"
-import { TextCountdown } from "../components/text_countdown"
-import { fetchWithTimeout } from '../common/utils'
+import { useState } from "react"
+import { PastStreamCounter } from "../components/past_stream_counter"
+import { VideoBox } from '../components/video_box'
 
 function selectRandomImage(fromSet) {
     return fromSet[(Math.random() * fromSet.length) | 0]
@@ -58,26 +59,26 @@ function scrambledImageSet(state) {
 // downwards. The stream info API does something similar, but waits
 // for the Twitter update to finish before sending a response. 
 //
-//                              +---------------+ +----------------+
-// Still valid------------------+Get cached data| |Get past stream |
-//      |                       |from DB        | |from holodex    |
-//      |                       +-------+-------+ +--------+-------+
-//      |                               |                  |
-//      |                             Stale?               |
-//      |     +------------+            |                  |
-//      |   +-+ Revalidate |<--Members?-+                  |
-//      |   | | against YT |            |                  |
-//      |   | | API        |            |                  |
-//      |   | ++-----------+            v                  |
-//      |   |  |                +---------------+          |
-//      |   |  |    Dead/       |Check YouTube  |          |
-//      |   |  +----finished--->|/live endpoint |          |
-//      |   |                   +-------+--+----+          |           +--------------------+
-//      |   |                           |  |               |           |Search Twitter      |
-//      |   |                           |  +--No stream----+---------> |for members streams |
-//      |   |                           v                  |           |/premieres          |
-//      |   |                   +---------------+          |           +---------+----------+
-//      +---+------------------>|Send response  |<---------+                     |
+//                              +---------------+ 
+// Still valid------------------+Get cached data| 
+//      |                       |from DB        | 
+//      |                       +-------+-------+ 
+//      |                               |         
+//      |                             Stale?      
+//      |     +------------+            |         
+//      |   +-+ Revalidate |<--Members?-+         
+//      |   | | against YT |            |         
+//      |   | | API        |            |         
+//      |   | ++-----------+            v         
+//      |   |  |                +---------------+ 
+//      |   |  |    Dead/       |Check YouTube  | 
+//      |   |  +----finished--->|/live endpoint | 
+//      |   |                   +-------+--+----+                      +--------------------+
+//      |   |                           |  |                           |Search Twitter      |
+//      |   |                           |  +--No stream--------------> |for members streams |
+//      |   |                           v                              |/premieres          |
+//      |   |                   +---------------+                      +---------+----------+
+//      +---+------------------>|Send response  |                                |
 //                              |to client      |                                |
 //                              +---------------+                                |
 //                                                                               |
@@ -99,7 +100,6 @@ export async function getServerSideProps({ req, res, query }) {
 
     let initialRefreshTime = 0
     let useStreamInfo = await ds.getKnownStreamData(coordinator)
-    const pastStreamPromise = ds.getPastStream()
     
     if (!useStreamInfo) {
         const { result, error } = await ds.getLiveStreamData(query.mock)
@@ -108,8 +108,9 @@ export async function getServerSideProps({ req, res, query }) {
             await coordinator.teardown()
             return { props: { 
                 showDebugBar: (process.env.USE_DUMMY_DATA === "true"),
-                passDown: { absolutePrefix, channelLink }, 
-                dynamic: { isError: true, initialImage: selectRandomImage(ERROR_IMAGE_SET), pastStream: await pastStreamPromise } 
+                absolutePrefix,
+                channelLink, 
+                dynamic: { isError: true, initialImage: selectRandomImage(ERROR_IMAGE_SET) } 
             } }
         }
 
@@ -133,16 +134,13 @@ export async function getServerSideProps({ req, res, query }) {
     return { props: {
         showDebugBar: (process.env.USE_DUMMY_DATA === "true"),
         initialRefreshTime,
-        passDown: {
-            absolutePrefix,
-            channelLink
-        },
+        absolutePrefix,
+        channelLink,
         dynamic: {
             initialImage: imageFromStreamStatus(useStreamInfo.live),
             usedImageSet: null, //set in Home.componentDidMount
             status: useStreamInfo.live,
             isError: false,
-            pastStream: await pastStreamPromise,
             streamInfo: {
                 link: useStreamInfo.videoLink,
                 title: useStreamInfo.title,
@@ -175,8 +173,8 @@ function createEmbedDescription(status, streamInfo) {
 }
 
 function StreamInfo(props) {
-    let link, text, boxExtraClass = "", thumb
     if (isStreamInfoValid(props.info)) {
+        let text, boxExtraClass = ""
         switch (props.status) {
             case STREAM_STATUS.LIVE:
                 text = "LIVE"
@@ -190,45 +188,17 @@ function StreamInfo(props) {
                 break
         }
 
-        link = <a href={props.info.link}>{props.info.title}</a>
-        thumb = props.info.thumbnail
-    } else {
-        text = "Current Stream"
-        link = <b>NOTHING UUUUUUUuuuuuu</b>
-    }
-
-    const formats = {
-        immediate: "(Now!)",
-        forFuture: "(in %@)",
-        forPast: "(%@ ago)",
-    }
-
-    return <div className={`${styles.streamInfo} ${boxExtraClass}`}>
-        <div className={styles.vstack}>
-            <p className={`${styles.streamInfoHead}`}>
-                {text} {props.status != STREAM_STATUS.LIVE && props.info?.startTime ? 
-                    <span className={styles.countdown}><TextCountdown to={props.info.startTime} formatStrings={formats} /></span>
-                    : null}
-            </p>
-            <p>{link}</p>
-            {props.info?.isMembersOnly ? <p>(for Faunatics only!)</p> : null}
+        return <div className={`${styles.streamInfo} ${boxExtraClass}`}>
+            <VideoBox caption={text} info={props.info} showCountdown={props.status != STREAM_STATUS.LIVE} />
         </div>
-        {thumb ? <img src={thumb} alt="thumbnail" width={120} /> : null}
-    </div>
-}
-
-function PastStreamCounter(props) {
-    const formats = {
-        immediate: "", forFuture: "", forPast: `%@ without Fauna`,
-        days: (days) => (days > 1 ? `${days} days` : `${days} day`),
-        hours: (hours) => (hours > 1 ? `${hours} hours` : `${hours} hour`),
-        minutes: (minutes) => (minutes > 1 ? `${minutes} minutes` : `${minutes} minute`),
-        seconds: (seconds) => (seconds > 1 ? `${seconds} seconds` : `${seconds} second`),
-        separator: ", "
+    } else {
+        return <div className={styles.streamInfo}>
+            <div className={styles.vstack}>
+                <p className={styles.videoBoxCaption}>Current Stream</p>
+                <p><b>NOTHING UUUUUUUuuuuuu</b></p>
+            </div>
+        </div>
     }
-    return <div className={`${styles.streamInfo} ${styles.pastStreamInfo}`}>
-        <p className={styles.countdown}><TextCountdown to={props.date} formatStrings={formats} /></p>
-    </div>
 }
 
 function CommonMetadata() {
@@ -244,8 +214,8 @@ function LiveOrStartingSoonLayout(props) {
     const [image, setImage] = useState(props.initialImage)
     let pastStreamCounter = null
     let pageEmoji = "🔴"
-    if (props.status !== STREAM_STATUS.LIVE && props.pastStream?.endActual) {
-        pastStreamCounter = <PastStreamCounter date={props.pastStream.endActual} />
+    if (props.status !== STREAM_STATUS.LIVE) {
+        pastStreamCounter = <PastStreamCounter />
     }
 
     if (props.status !== STREAM_STATUS.LIVE) {
@@ -270,10 +240,6 @@ function LiveOrStartingSoonLayout(props) {
 
 function NoStreamLayout(props) {
     const [image, setImage] = useState(props.initialImage)
-    let pastStreamCounter = null
-    if (props.pastStream?.endActual) {
-        pastStreamCounter = <PastStreamCounter date={props.pastStream.endActual} />
-    }
 
     return <div className="miss-her">
         <Head>
@@ -285,17 +251,13 @@ function NoStreamLayout(props) {
         <img className={styles.bigImage} src={`${props.absolutePrefix}/${image}`} alt="wah" 
             onClick={() => setImage(selectNextImage(props.usedImageSet, image))} />
         <StreamInfo status={props.status} info={props.streamInfo} />
-        {pastStreamCounter}
+        <PastStreamCounter />
         <CommonFooter channelLink={props.channelLink} actRefreshNow={props.actRefreshNow} />
     </div>
 }
 
 function ErrorLayout(props) {
     const [image, setImage] = useState(props.initialImage)
-    let pastStreamCounter = null
-    if (props.pastStream?.endActual) {
-        pastStreamCounter = <PastStreamCounter date={props.pastStream.endActual} />
-    }
 
     return <div className="error">
         <Head>
@@ -307,7 +269,7 @@ function ErrorLayout(props) {
         <div className={`${styles.streamInfo} ${styles.streamInfoError}`}>
             <p>There was a problem checking stream status. <a href={props.channelLink}>{"You can check Fauna's channel yourself"}</a>!</p>
         </div>
-        {pastStreamCounter}
+        <PastStreamCounter />
         <CommonFooter channelLink={props.channelLink} actRefreshNow={props.actRefreshNow} />
     </div>
 }
@@ -322,118 +284,88 @@ function CommonFooter(props) {
     </footer>
 }
 
-export default class Home extends Component {
-    constructor(props) {
-        super(props)
-        this.state = {...props.dynamic}
-        this.isRequestInFlight = false
-        this.queryString = ""
-        this.mounted = false
-        this.actRefreshNow = () => this.refresh()
+function DebugBar(props) {
+    return <div>
+        Set API result flavor:
+        <button onClick={() => { props.setQueryString("?mock=live") }}>Live</button>
+        <button onClick={() => { props.setQueryString("?mock=soon") }}>Soon</button>
+        <button onClick={() => { props.setQueryString("?mock=farout") }}>Early Frame</button>
+        <button onClick={() => { props.setQueryString("?mock=nostream") }}>No Stream</button>
+        <button onClick={() => { props.setQueryString("?mock=error") }}>Error</button>
+        <button onClick={props.mutate}>(Refresh Now)</button>
+    </div>
+}
+
+async function refreshStreamInfo(url) {
+    const response = await fetch(url)
+    const json = await response.json()
+    
+    if (json.error) {
+        throw new Error("API error.")
     }
 
-    componentDidMount() {
-        this.mounted = true
-        if (this.props.initialRefreshTime) {
-            setTimeout(() => {
-                if (this.mounted) {
-                    this.refresh()
-                    this.timer = setInterval(() => this.refresh(), 90 * 1000)
-                }
-            }, this.props.initialRefreshTime * 1000)
-        } else {
-            this.timer = setInterval(() => this.refresh(), 90 * 1000)
+    return json.result
+}
+
+export default function Home(props) {
+    const [debugMockType, setDebugMockType] = useState("")
+    const { data, mutate } = useSWR("/api/stream_info" + debugMockType, refreshStreamInfo, {
+        fallbackData: {
+            status: props.dynamic.status,
+            streamInfo: props.dynamic.streamInfo,
+        },
+        revalidateOnFocus: false,
+        revalidateOnMount: false,
+        revalidateOnReconnect: true,
+        revalidateIfStale: true,
+        refreshInterval: 90000,
+    })
+
+    const [statusBase, setStatusBase] = useState(() => ({
+        status: data.status,
+        initialImage: props.dynamic.initialImage,
+        usedImageSet: scrambledImageSet(data)
+    }))
+
+    let effectiveStatusBase = statusBase
+    if (data.status !== statusBase.status) {
+        const nextSB = {
+            status: data.status,
+            initialImage: imageFromStreamStatus(data.status),
+            usedImageSet: scrambledImageSet(data)
         }
-        
-        //this is specifically not in refresh to avoid embedding in HTML
-        this.setState({
-            usedImageSet: scrambledImageSet(this.state)
-        })
+        setStatusBase(nextSB)
+        effectiveStatusBase = nextSB
     }
 
-    componentWillUnmount() {
-        this.mounted = false
-        clearInterval(this.timer)
+    const layoutCommonProps = {
+        absolutePrefix: props.absolutePrefix,
+        channelLink: props.channelLink,
+        ...data,
+        ...effectiveStatusBase
     }
 
-    refresh() {
-        if (this.isRequestInFlight) {
-            console.debug("refresh(): Request already in flight, doing nothing")
-            return
+    let layout
+    if (props.dynamic.isError || data.status === undefined) {
+        layout = <ErrorLayout {...layoutCommonProps} />
+    } else {
+        switch (data.status) {
+            case STREAM_STATUS.LIVE:
+            case STREAM_STATUS.STARTING_SOON:
+                layout = <LiveOrStartingSoonLayout {...layoutCommonProps} />
+                break
+            case STREAM_STATUS.OFFLINE:
+            case STREAM_STATUS.INDETERMINATE:
+                layout = <NoStreamLayout {...layoutCommonProps} />
+                break
         }
-
-        this.isRequestInFlight = true
-        fetchWithTimeout("/api/stream_info" + this.queryString)
-            .then((res) => res.json())
-            .then((json) => {
-                if (json.error !== false) {
-                    throw "API body reported failure"
-                }
-                return json.result
-            })
-            .then((jsBody) => {
-                if (jsBody.ytStreamData) {
-                    const nextState = { isError: false, status: jsBody.ytStreamData.status, streamInfo: jsBody.ytStreamData.streamInfo, initialImage: null }
-                    // If the stream status changes, the render layout we use can also change, which will reset the
-                    // image to the initialImage. The code here is to make sure the initialImage is correct
-                    // for the stream status.
-                    // It is set to null above, but this is fine because it will only be looked at on layout changes.
-                    if (nextState.status !== this.state.status) {
-                        nextState.initialImage = imageFromStreamStatus(nextState.status)
-                        nextState.usedImageSet = scrambledImageSet(nextState)
-                    }
-
-                    this.setState(nextState)
-                }
-
-                if (jsBody.pastStreamData) {
-                    this.setState({ pastStream: jsBody.pastStreamData })
-                }
-            })
-            .catch((r) => {
-                console.error("Error refreshing:", r)
-            })
-            .then(() => { 
-                console.debug("refresh(): done")
-                this.isRequestInFlight = false 
-            })
     }
 
-    debugBar() {
-        return <div>
-            Set API result flavor:
-            <button onClick={() => { this.queryString = "?mock=live" }}>Live</button>
-            <button onClick={() => { this.queryString = "?mock=soon" }}>Soon</button>
-            <button onClick={() => { this.queryString = "?mock=farout" }}>Early Frame</button>
-            <button onClick={() => { this.queryString = "?mock=nostream" }}>No Stream</button>
-            <button onClick={() => { this.queryString = "?mock=error" }}>Error</button>
-            <button onClick={this.actRefreshNow}>(Refresh Now)</button>
-        </div>
-    }
+    if (!layout) throw "Layout not set."
 
-    render() {
-        let layout
-        if (this.state.isError) {
-            layout = <ErrorLayout actRefreshNow={this.actRefreshNow} {...this.props.passDown} {...this.state} />
-        } else {
-            switch (this.state.status) {
-                case STREAM_STATUS.LIVE:
-                case STREAM_STATUS.STARTING_SOON:
-                    layout = <LiveOrStartingSoonLayout actRefreshNow={this.actRefreshNow} {...this.props.passDown} {...this.state} />
-                    break
-                case STREAM_STATUS.OFFLINE:
-                case STREAM_STATUS.INDETERMINATE:
-                    layout = <NoStreamLayout actRefreshNow={this.actRefreshNow} {...this.props.passDown} {...this.state} />
-                    break
-            }
-        }
-
-        if (!layout) throw "Layout not set."
-
-        return <div className={styles.site}>
-            <CommonMetadata />
-            {layout}
-            {this.props.showDebugBar ? this.debugBar() : null}
-        </div>
-    }
+    return <div className={styles.site}>
+        <CommonMetadata />
+        {layout}
+        {props.showDebugBar ? <DebugBar mutate={mutate} setQueryString={setDebugMockType} /> : null}
+    </div>
 }
