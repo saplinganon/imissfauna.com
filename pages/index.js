@@ -100,7 +100,7 @@ export async function getServerSideProps({ req, res, query }) {
     const absolutePrefix = process.env.PUBLIC_HOST
     const channelLink = `https://www.youtube.com/channel/${process.env.WATCH_CHANNEL_ID}`
 
-    let initialRefreshTime = 0
+    let staleOnArrival = false
     let useStreamInfo = await ds.getKnownStreamData(coordinator)
     
     if (!useStreamInfo) {
@@ -125,7 +125,7 @@ export async function getServerSideProps({ req, res, query }) {
                 .then(() => coordinator.teardown())
             // Instruct the client to refresh after the extended check is done (hopefully).
             // Depending on latency this might need adjustment
-            initialRefreshTime = 5
+            staleOnArrival = true
         }
 
         useStreamInfo = result
@@ -135,7 +135,7 @@ export async function getServerSideProps({ req, res, query }) {
 
     return { props: {
         showDebugBar: (process.env.USE_DUMMY_DATA === "true"),
-        initialRefreshTime,
+        staleOnArrival,
         absolutePrefix,
         channelLink,
         dynamic: {
@@ -293,6 +293,8 @@ async function refreshStreamInfo(url) {
 
 export default function Home(props) {
     const [debugMockType, setDebugMockType] = useState("")
+    const [isStaleOnArrival, setStaleOnArrival] = useState(props.staleOnArrival)
+
     const { data, mutate } = useSWR("/api/stream_info" + debugMockType, refreshStreamInfo, {
         fallbackData: {
             status: props.dynamic.status,
@@ -304,6 +306,11 @@ export default function Home(props) {
         revalidateIfStale: true,
         refreshInterval: 90000,
     })
+
+    if (isStaleOnArrival) {
+        setTimeout(() => mutate(), 5000)
+        setStaleOnArrival(false)
+    }
 
     const [statusBase, setStatusBase] = useState(() => ({
         status: data.status,
