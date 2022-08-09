@@ -227,7 +227,7 @@ function LiveOrStartingSoonLayout(props) {
         <img className={styles.bigImage} src={`${props.absolutePrefix}/${image}`} alt="wah" 
             onClick={() => setImage(selectNextImage(props.usedImageSet, image))} />
         {pastStreamCounter}
-        <CommonFooter channelLink={props.channelLink} actRefreshNow={props.actRefreshNow} />
+        <CommonFooter channelLink={props.channelLink} />
     </div>
 }
 
@@ -246,7 +246,7 @@ function NoStreamLayout(props) {
         <StreamInfo status={props.status} info={props.streamInfo} />
         <PastStreamCounter />
         <p><Link href="/reps"><a>Do your reps</a></Link></p>
-        <CommonFooter channelLink={props.channelLink} actRefreshNow={props.actRefreshNow} />
+        <CommonFooter channelLink={props.channelLink} />
     </div>
 }
 
@@ -264,7 +264,8 @@ function ErrorLayout(props) {
             <p>There was a problem checking stream status. <a href={props.channelLink}>{"You can check Fauna's channel yourself"}</a>!</p>
         </div>
         <PastStreamCounter />
-        <CommonFooter channelLink={props.channelLink} actRefreshNow={props.actRefreshNow} />
+        <p><Link href="/reps"><a>Do your reps</a></Link></p>
+        <CommonFooter channelLink={props.channelLink} />
     </div>
 }
 
@@ -298,7 +299,7 @@ export default function Home(props) {
     const { data, mutate } = useSWR("/api/stream_info" + debugMockType, refreshStreamInfo, {
         fallbackData: {
             status: props.dynamic.status,
-            streamInfo: props.dynamic.streamInfo,
+            ...props.dynamic.streamInfo,
         },
         revalidateOnFocus: false,
         revalidateOnMount: false,
@@ -332,7 +333,7 @@ export default function Home(props) {
     const layoutCommonProps = {
         absolutePrefix: props.absolutePrefix,
         channelLink: props.channelLink,
-        ...data,
+        streamInfo: data,
         ...effectiveStatusBase
     }
 
