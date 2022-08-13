@@ -46,7 +46,7 @@ function VodInfo(props) {
 }
 
 export default function Reps(props) {
-    const { data, isValidating, mutate } = useSWR("/api/random_vod", (url) => fetch(url).then(r => r.json()), {
+    const { data, isValidating, mutate } = useSWR("/api/v2/random_vod", (url) => fetch(url).then(r => r.json()), {
         fallbackData: {info: props.info, uploadDate: props.uploadDate, error: props.error},
         revalidateOnFocus: false,
         revalidateOnMount: false,

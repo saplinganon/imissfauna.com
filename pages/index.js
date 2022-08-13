@@ -296,7 +296,7 @@ export default function Home(props) {
     const [debugMockType, setDebugMockType] = useState("")
     const [isStaleOnArrival, setStaleOnArrival] = useState(props.staleOnArrival)
 
-    const { data, mutate } = useSWR("/api/stream_info" + debugMockType, refreshStreamInfo, {
+    const { data, mutate } = useSWR("/api/v2/stream_info" + debugMockType, refreshStreamInfo, {
         fallbackData: {
             status: props.dynamic.status,
             ...props.dynamic.streamInfo,

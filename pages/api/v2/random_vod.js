@@ -1,4 +1,4 @@
-import { getDatabase } from "../../server/data_sources"
+import { getDatabase } from "../../../server/data_sources"
 
 export default async function handler(req, res) {
     if (req.method !== "GET") {
