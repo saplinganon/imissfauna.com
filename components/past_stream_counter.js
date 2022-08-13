@@ -24,7 +24,7 @@ async function fetchPastStream(url) {
 }
 
 export function PastStreamCounter(props) {
-    const { data, isValidating } = useSWR("/api/past_stream", fetchPastStream, {
+    const { data } = useSWR("/api/past_stream", fetchPastStream, {
         revalidateOnFocus: false,
         revalidateOnMount: true,
         revalidateOnReconnect: false,
@@ -32,7 +32,7 @@ export function PastStreamCounter(props) {
         refreshInterval: 90000,
     })
 
-    if (isValidating) {
+    if (!data) {
         return null
     }
 
