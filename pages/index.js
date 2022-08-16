@@ -299,7 +299,7 @@ export default function Home(props) {
     const { data, mutate } = useSWR("/api/v2/stream_info" + debugMockType, refreshStreamInfo, {
         fallbackData: {
             status: props.dynamic.status,
-            ...props.dynamic.streamInfo,
+            streamInfo: props.dynamic.streamInfo,
         },
         revalidateOnFocus: false,
         revalidateOnMount: false,
@@ -333,7 +333,7 @@ export default function Home(props) {
     const layoutCommonProps = {
         absolutePrefix: props.absolutePrefix,
         channelLink: props.channelLink,
-        streamInfo: data,
+        streamInfo: data.streamInfo,
         ...effectiveStatusBase
     }
 
