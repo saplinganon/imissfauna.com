@@ -1,10 +1,11 @@
-import styles from '../styles/Home.module.css'
 import Head from "next/head"
 import Link from "next/link"
 import React from "react"
-import { CommonMetadata, CommonFooter } from "../components/page_meta"
 import useSWR from 'swr'
+import { API_ROUTES } from '../common/enums'
+import { CommonFooter, CommonMetadata } from "../components/page_meta"
 import { VideoBox } from '../components/video_box'
+import styles from '../styles/Home.module.css'
 
 export async function getServerSideProps({ req, res, query }) {
     const ds = await import("../server/data_sources")
@@ -46,7 +47,7 @@ function VodInfo(props) {
 }
 
 export default function Reps(props) {
-    const { data, isValidating, mutate } = useSWR("/api/v2/random_vod", (url) => fetch(url).then(r => r.json()), {
+    const { data, isValidating, mutate } = useSWR(API_ROUTES.RANDOM_VOD, (url) => fetch(url).then(r => r.json()), {
         fallbackData: {info: props.info, uploadDate: props.uploadDate, error: props.error},
         revalidateOnFocus: false,
         revalidateOnMount: false,

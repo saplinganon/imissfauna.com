@@ -1,5 +1,5 @@
 import { STREAM_STATUS, STREAM_TYPE } from "../../../common/enums"
-import { getDatabase, getKnownStreamData, getLiveStreamData, findExtraStreams } from "../../../server/data_sources"
+import { findExtraStreams, getDatabase, getKnownStreamData, getLiveStreamData } from "../../../server/data_sources"
 
 function chooseBest(streams) {
     if (!streams) {

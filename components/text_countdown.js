@@ -1,5 +1,4 @@
 import { Component } from "react"
-import styles from "../styles/Home.module.css"
 
 const DEFAULT_FORMATS = {
     immediate: "now",

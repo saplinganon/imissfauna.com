@@ -1,13 +1,13 @@
-import styles from '../styles/Home.module.css'
 import Head from "next/head"
 import Link from "next/link"
-import useSWR from "swr"
-import { STREAM_STATUS } from "../common/enums"
-import { ERROR_IMAGE_SET, HAVE_STREAM_IMAGE_SET, NO_STREAM_IMAGE_SET } from "../imagesets"
 import { useState } from "react"
-import { CommonMetadata, CommonFooter } from "../components/page_meta"
+import useSWR, { useSWRConfig } from "swr"
+import { API_ROUTES, STREAM_STATUS } from "../common/enums"
+import { CommonFooter, CommonMetadata } from "../components/page_meta"
 import { PastStreamCounter } from "../components/past_stream_counter"
 import { VideoBox } from '../components/video_box'
+import { ERROR_IMAGE_SET, HAVE_STREAM_IMAGE_SET, NO_STREAM_IMAGE_SET } from "../imagesets"
+import styles from '../styles/Home.module.css'
 
 function selectRandomImage(fromSet) {
     return fromSet[(Math.random() * fromSet.length) | 0]
@@ -277,12 +277,12 @@ function DebugBar(props) {
         <button onClick={() => { props.setQueryString("?mock=farout") }}>Early Frame</button>
         <button onClick={() => { props.setQueryString("?mock=nostream") }}>No Stream</button>
         <button onClick={() => { props.setQueryString("?mock=error") }}>Error</button>
-        <button onClick={props.mutate}>(Refresh Now)</button>
+        <button onClick={props.mutate(API_ROUTES.STREAM_INFO)}>(Refresh Now)</button>
     </div>
 }
 
-async function refreshStreamInfo(url) {
-    const response = await fetch(url)
+async function refreshStreamInfo(url, debug) {
+    const response = await fetch(url + debug)
     const json = await response.json()
     
     if (json.error) {
@@ -296,7 +296,8 @@ export default function Home(props) {
     const [debugMockType, setDebugMockType] = useState("")
     const [isStaleOnArrival, setStaleOnArrival] = useState(props.staleOnArrival)
 
-    const { data, mutate } = useSWR("/api/v2/stream_info" + debugMockType, refreshStreamInfo, {
+    const { mutate } = useSWRConfig()
+    const { data } = useSWR(API_ROUTES.STREAM_INFO, (url) => refreshStreamInfo(url, debugMockType), {
         fallbackData: {
             status: props.dynamic.status,
             streamInfo: props.dynamic.streamInfo,
@@ -309,7 +310,7 @@ export default function Home(props) {
     })
 
     if (isStaleOnArrival) {
-        setTimeout(() => mutate(), 5000)
+        setTimeout(() => mutate(API_ROUTES.STREAM_INFO), 5000)
         setStaleOnArrival(false)
     }
 
@@ -327,6 +328,7 @@ export default function Home(props) {
             usedImageSet: scrambledImageSet(data)
         }
         setStatusBase(nextSB)
+        mutate(API_ROUTES.PAST_STREAM_INFO)
         effectiveStatusBase = nextSB
     }
 

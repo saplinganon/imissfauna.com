@@ -10,3 +10,9 @@ export const STREAM_TYPE = {
     PREMIERE: 2,
     DEAD: 3,
 }
+
+export const API_ROUTES = {
+    STREAM_INFO: "/api/v2/stream_info",
+    PAST_STREAM_INFO: "/api/v2/past_stream",
+    RANDOM_VOD: "/api/v2/random_vod"
+}
