@@ -98,7 +98,10 @@ export async function getServerSideProps({ req, res, query }) {
     }
 
     const absolutePrefix = process.env.PUBLIC_HOST
-    const channelLink = `https://www.youtube.com/channel/${process.env.WATCH_CHANNEL_ID}`
+    const channelURLEnd = (process.env.WATCH_CHANNEL_HANDLE !== undefined)
+        ? process.env.WATCH_CHANNEL_HANDLE
+        : `channel/${process.env.WATCH_CHANNEL_ID}`
+    const channelLink = `https://www.youtube.com/${channelURLEnd}`
 
     let staleOnArrival = false
     let useStreamInfo = await ds.getKnownStreamData(coordinator)
