@@ -1,12 +1,13 @@
 import Head from "next/head"
 import Link from "next/link"
-import { useState } from "react"
+import { useContext, useState } from "react"
 import useSWR, { useSWRConfig } from "swr"
 import { API_EPOCH, API_ROUTES, STREAM_STATUS } from "../common/enums"
 import { CommonFooter, CommonMetadata } from "../components/page_meta"
 import { PastStreamCounter } from "../components/past_stream_counter"
 import { VideoBox } from '../components/video_box'
 import { ERROR_IMAGE_SET, HAVE_STREAM_IMAGE_SET, NO_STREAM_IMAGE_SET } from "../imagesets"
+import { LangContext, useLocalizationForRootComponentsOnly } from "../lang/dict_manager"
 import styles from '../styles/Home.module.css'
 
 function selectRandomImage(fromSet) {
@@ -162,34 +163,35 @@ function isStreamInfoValid(streamInfo) {
     return !!(streamInfo?.link)
 }
 
-function createEmbedDescription(status, streamInfo) {
+function createEmbedDescription(lang, status, streamInfo) {
     if (!isStreamInfoValid(streamInfo)) {
         return ""
     }
 
     switch (status) {
         case STREAM_STATUS.LIVE:
-            return `Streaming: ${streamInfo.title}`
+            return lang.formatString(lang.Main.Embed.TextLive, streamInfo.title)
         case STREAM_STATUS.STARTING_SOON:
-            return `Starting Soon: ${streamInfo.title}`
+            return lang.formatString(lang.Main.Embed.TextStartingSoon, streamInfo.title)
         default:
-            return `Next Stream: ${streamInfo.title}`
+            return lang.formatString(lang.Main.Embed.TextStreamQueued, streamInfo.title)
     }
 }
 
 function StreamInfo(props) {
+    const lang = useContext(LangContext)
     if (isStreamInfoValid(props.info)) {
         let text, boxExtraClass = ""
         switch (props.status) {
             case STREAM_STATUS.LIVE:
-                text = "LIVE"
+                text = lang.VideoBox.StatusLive
                 boxExtraClass = styles.streamInfoLive
                 break
             case STREAM_STATUS.STARTING_SOON:
-                text = "Starting Soon"
+                text = lang.VideoBox.StatusStartingSoon
                 break
             default:
-                text = "Next Stream"
+                text = lang.VideoBox.StatusStreamQueued
                 break
         }
 
@@ -199,14 +201,15 @@ function StreamInfo(props) {
     } else {
         return <div className={styles.streamInfo}>
             <div className={styles.vstack}>
-                <p className={styles.videoBoxCaption}>Current Stream</p>
-                <p><b>NOTHING UUUUUUUuuuuuu</b></p>
+                <p className={styles.videoBoxCaption}>{lang.VideoBox.NoStreamDummyStatus}</p>
+                <p><b>{lang.VideoBox.NoStreamDummyTitle}</b></p>
             </div>
         </div>
     }
 }
 
 function LiveOrStartingSoonLayout(props) {
+    const lang = useContext(LangContext)
     const [image, setImage] = useState(props.initialImage)
     let pastStreamCounter = null
     let pageEmoji = "🔴"
@@ -218,16 +221,16 @@ function LiveOrStartingSoonLayout(props) {
         pageEmoji = "🕒"
     }
 
-    return <div className="comfy">
+    return <div>
         <Head>
-            <title>{pageEmoji} I MISS FAUNA</title>
-            <meta content={createEmbedDescription(props.status, props.streamInfo)} property="og:description" />
+            <title>{pageEmoji} {lang.Main.PageTitle}</title>
+            <meta content={createEmbedDescription(lang, props.status, props.streamInfo)} property="og:description" />
             <meta content={`${props.absolutePrefix}/${image}`} property="og:image" />
         </Head>
 
-        <h1>{"I Don't Miss Fauna"}</h1>
+        <h1>{lang.Main.DontMissCaption}</h1>
         <StreamInfo status={props.status} info={props.streamInfo} />
-        <img className={styles.bigImage} src={`${props.absolutePrefix}/${image}`} alt="wah" 
+        <img className={styles.bigImage} src={`${props.absolutePrefix}/${image}`} alt={lang.Main.ImageAlt}  
             onClick={() => setImage(selectNextImage(props.usedImageSet, image))} />
         {pastStreamCounter}
         <CommonFooter channelLink={props.channelLink} />
@@ -235,39 +238,42 @@ function LiveOrStartingSoonLayout(props) {
 }
 
 function NoStreamLayout(props) {
+    const lang = useContext(LangContext)
     const [image, setImage] = useState(props.initialImage)
 
-    return <div className="miss-her">
+    return <div>
         <Head>
-            <title>I MISS FAUNA</title>
-            <meta content={createEmbedDescription(props.status, props.streamInfo)} property="og:description" />
+            <title>{lang.Main.PageTitle}</title>
+            <meta content={createEmbedDescription(lang, props.status, props.streamInfo)} property="og:description" />
             <meta content={`${props.absolutePrefix}/${image}`} property="og:image" />
         </Head>
 
-        <img className={styles.bigImage} src={`${props.absolutePrefix}/${image}`} alt="wah" 
+        <img className={styles.bigImage} src={`${props.absolutePrefix}/${image}`} alt={lang.Main.ImageAlt} 
             onClick={() => setImage(selectNextImage(props.usedImageSet, image))} />
         <StreamInfo status={props.status} info={props.streamInfo} />
         <PastStreamCounter />
-        <p><Link href="/reps"><a>Do your reps</a></Link></p>
+        <p><Link href="/reps">{lang.Main.RandomVodLink}</Link></p>
         <CommonFooter channelLink={props.channelLink} />
     </div>
 }
 
 function ErrorLayout(props) {
+    const lang = useContext(LangContext)
     const [image, setImage] = useState(props.initialImage)
 
-    return <div className="error">
+    return <div>
         <Head>
-            <title>I MISS FAUNA</title>
+            <title>{lang.Main.PageTitle}</title>
             <meta content={`${props.absolutePrefix}/${image}`} property="og:image" />
         </Head>
-        <img className={styles.bigImage} src={`${props.absolutePrefix}/${image}`} alt="wah" 
+        <img className={styles.bigImage} src={`${props.absolutePrefix}/${image}`} alt={lang.Main.ImageAlt} 
             onClick={() => setImage(selectNextImage(props.usedImageSet, image))} />
         <div className={`${styles.streamInfo} ${styles.streamInfoError}`}>
-            <p>There was a problem checking stream status. <a href={props.channelLink}>{"You can check Fauna's channel yourself"}</a>!</p>
+            <p>{lang.formatString(lang.Main.ErrorOccurred, 
+                <a href={props.channelLink}>{lang.Main.ErrorMessageChannelLink}</a>)}</p>
         </div>
         <PastStreamCounter />
-        <p><Link href="/reps"><a>Do your reps</a></Link></p>
+        <p><Link href="/reps">{lang.Main.RandomVodLink}</Link></p>
         <CommonFooter channelLink={props.channelLink} />
     </div>
 }
@@ -280,7 +286,7 @@ function DebugBar(props) {
         <button onClick={() => { props.setQueryString("?mock=farout") }}>Early Frame</button>
         <button onClick={() => { props.setQueryString("?mock=nostream") }}>No Stream</button>
         <button onClick={() => { props.setQueryString("?mock=error") }}>Error</button>
-        <button onClick={props.mutate(API_ROUTES.STREAM_INFO)}>(Refresh Now)</button>
+        <button onClick={() => { props.mutate(API_ROUTES.STREAM_INFO) }}>(Refresh Now)</button>
     </div>
 }
 
@@ -365,9 +371,11 @@ export default function Home(props) {
 
     if (!layout) throw "Layout not set."
 
-    return <div className={styles.site}>
-        <CommonMetadata />
-        {layout}
-        {props.showDebugBar ? <DebugBar mutate={mutate} setQueryString={setDebugMockType} /> : null}
-    </div>
+    return <LangContext.Provider value={useLocalizationForRootComponentsOnly()}>
+        <div className={styles.site}>
+            <CommonMetadata />
+            {layout}
+            {props.showDebugBar ? <DebugBar mutate={mutate} setQueryString={setDebugMockType} /> : null}
+        </div>
+    </LangContext.Provider>
 }

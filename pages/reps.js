@@ -1,10 +1,11 @@
 import Head from "next/head"
 import Link from "next/link"
-import React from "react"
+import React, { useContext } from "react"
 import useSWR from 'swr'
 import { API_ROUTES, API_EPOCH } from '../common/enums'
 import { CommonFooter, CommonMetadata } from "../components/page_meta"
 import { VideoBox } from '../components/video_box'
+import { LangContext, useDictionary, useLocalizationForRootComponentsOnly } from "../lang/dict_manager"
 import styles from '../styles/Home.module.css'
 
 export async function getServerSideProps({ req, res, query }) {
@@ -30,7 +31,7 @@ export async function getServerSideProps({ req, res, query }) {
         res.statusCode = 503
         return {
             props: {
-                error: "No video found.",
+                error: "NO_VIDEO_FOUND",
                 channelLink: `https://www.youtube.com/channel/${process.env.WATCH_CHANNEL_ID}`
             }
         }
@@ -38,8 +39,9 @@ export async function getServerSideProps({ req, res, query }) {
 }
 
 function VodInfo(props) {
+    const lang = useContext(LangContext)
     const date = new Date(props.uploadDate)
-    const caption = `Streamed or uploaded on ${date.toLocaleDateString("en-US", {month: "short", day: "numeric", year: "numeric"})}`
+    const caption = lang.formatString(lang.Reps.VodInfoUploadDate, useDictionary().FormatDateShort(date))
 
     return <div className={styles.streamInfo}>
         <VideoBox info={props.info} caption={caption} />
@@ -54,32 +56,33 @@ export default function Reps(props) {
         revalidateOnReconnect: false,
         revalidateIfStale: false
     })
+    const lang = useLocalizationForRootComponentsOnly()
 
     if (window && data.serverVersion > API_EPOCH) {
         window.location.reload()
     }
 
-    return <div className={styles.site}>
-        <CommonMetadata />
-        <Head>
-            <title>Do your reps!</title>
-            <meta content="Get a random Fauna VOD to watch!" property="og:description" />
-        </Head>
-        <div className={`${styles.site} ${styles.repsPage} ${isValidating? styles.isReloading : ''}`}>
-            <p className={styles.bareTextContainer}>
-                Watch this one!
-            </p>
-            {data.error
-                ? <div className={`${styles.streamInfo} ${styles.streamInfoError}`}>
-                    <p>A problem occurred while getting a random video: {data.error}</p>
-                </div> 
-                : <VodInfo info={data.info} uploadDate={data.uploadDate} />}
-            <button className={styles.bigButton} onClick={() => mutate()}>
-                Reroll
-            </button>
-              
-            <p><Link href="/"><a>Back to stream tracker</a></Link></p>
-            <CommonFooter channelLink={props.channelLink} />
+    return <LangContext.Provider value={lang}>
+        <div className={styles.site}>
+            <CommonMetadata />
+            <Head>
+                <title>{lang.Reps.PageTitle}</title>
+                <meta content={lang.Reps.SMMetaDescription} property="og:description" />
+            </Head>
+            <div className={`${styles.site} ${styles.repsPage} ${isValidating? styles.isReloading : ''}`}>
+                <p className={styles.bareTextContainer}>{lang.Reps.PageCaption}</p>
+                {data.error
+                    ? <div className={`${styles.streamInfo} ${styles.streamInfoError}`}>
+                        <p>{lang.formatString(lang.Reps.ErrorDescription, lang.Reps.ErrorCodes[data.error])}</p>
+                    </div> 
+                    : <VodInfo info={data.info} uploadDate={data.uploadDate} />}
+                <button className={styles.bigButton} onClick={() => mutate()}>
+                    {lang.Reps.RerollButton}
+                </button>
+                
+                <p><Link href="/">{lang.Reps.BackToStreamTrackerButton}</Link></p>
+                <CommonFooter channelLink={props.channelLink} />
+            </div>
         </div>
-    </div>
+    </LangContext.Provider>
 }
