@@ -20,7 +20,7 @@ export default async function handler(req, res) {
         })
     } else {
         res.status(503).json({
-            error: "No video found.",
+            error: "NO_VIDEO_FOUND",
         })
     }
 

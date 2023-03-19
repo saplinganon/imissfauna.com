@@ -48,3 +48,13 @@ Run either init_postgres.sql or init_sqlite3.sql on your database to create the 
 ## How to add images
 
 1. Put a .png or .jpg file in public/imagesets/[name]
+
+## How to add languages
+
+1. Open `next.config.js` and add your language's locale code to the `locales` array
+   (e.g. `locales: ["en"],` -> `locales: ["en", "fr"],`). Locale codes can be either just
+   the language (`en`) or include a region (`en-US`).
+2. Open `lang/strings.js` and copy/paste the entire English strings block. Replace the
+   locale code in `AllStrings["en"]` with the code you added in step 1.
+3. Translate all the newly copypasted strings.
+4. Make a pull request.
