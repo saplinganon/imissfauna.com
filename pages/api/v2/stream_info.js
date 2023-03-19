@@ -1,4 +1,4 @@
-import { STREAM_STATUS, STREAM_TYPE } from "../../../common/enums"
+import { API_EPOCH, STREAM_STATUS, STREAM_TYPE } from "../../../common/enums"
 import { findExtraStreams, getDatabase, getKnownStreamData, getLiveStreamData } from "../../../server/data_sources"
 
 function chooseBest(streams) {
@@ -77,7 +77,8 @@ export default async function handler(req, res) {
                 isMembersOnly: useStreamInfo.isMembersOnly,
                 streamType: useStreamInfo.streamType,
             }
-        }
+        },
+        serverVersion: API_EPOCH
     })
     await coordinator.teardown()
 }

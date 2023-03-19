@@ -16,3 +16,5 @@ export const API_ROUTES = {
     PAST_STREAM_INFO: "/api/v2/past_stream",
     RANDOM_VOD: "/api/v2/random_vod"
 }
+
+export const API_EPOCH = 2

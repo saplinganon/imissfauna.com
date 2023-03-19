@@ -2,7 +2,7 @@ import Head from "next/head"
 import Link from "next/link"
 import React from "react"
 import useSWR from 'swr'
-import { API_ROUTES } from '../common/enums'
+import { API_ROUTES, API_EPOCH } from '../common/enums'
 import { CommonFooter, CommonMetadata } from "../components/page_meta"
 import { VideoBox } from '../components/video_box'
 import styles from '../styles/Home.module.css'
@@ -54,6 +54,10 @@ export default function Reps(props) {
         revalidateOnReconnect: false,
         revalidateIfStale: false
     })
+
+    if (window && data.serverVersion > API_EPOCH) {
+        window.location.reload()
+    }
 
     return <div className={styles.site}>
         <CommonMetadata />

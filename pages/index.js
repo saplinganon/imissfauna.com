@@ -2,7 +2,7 @@ import Head from "next/head"
 import Link from "next/link"
 import { useState } from "react"
 import useSWR, { useSWRConfig } from "swr"
-import { API_ROUTES, STREAM_STATUS } from "../common/enums"
+import { API_EPOCH, API_ROUTES, STREAM_STATUS } from "../common/enums"
 import { CommonFooter, CommonMetadata } from "../components/page_meta"
 import { PastStreamCounter } from "../components/past_stream_counter"
 import { VideoBox } from '../components/video_box'
@@ -290,6 +290,11 @@ async function refreshStreamInfo(url, debug) {
     
     if (json.error) {
         throw new Error("API error.")
+    }
+
+    if (window && json.serverVersion > API_EPOCH) {
+        console.warn("Reloading page because server API epoch changed.")
+        window.location.reload()
     }
 
     return json.result
