@@ -18,8 +18,8 @@ AllStrings["en"] = {
         ErrorOccurred: "There was a problem checking stream status. {0}!",
         Embed: {
             TextLive: "Streaming: {0}",
-            TextStartingSoon: "Streaming: {0}",
-            TextStreamQueued: "Streaming: {0}",
+            TextStartingSoon: "Starting Soon: {0}",
+            TextStreamQueued: "Next Stream: {0}",
         }
     },
 
