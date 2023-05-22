@@ -6,7 +6,11 @@ function createPollRoute(channelID) {
 
 async function fetchPaststreamPage(channelID) {
     try {
-        const res = await fetchWithTimeout(createPollRoute(channelID), {}, undefined, "Get Holodex Stream Info")
+        const res = await fetchWithTimeout(createPollRoute(channelID), {
+            headers: {
+                "X-APIKEY": process.env.HOLODEX_API_KEY
+            }
+        }, undefined, "Get Holodex Stream Info")
         if (res.status !== 200) {
             return { error: `HTTP status: ${res.status}`, result: null }
         }
