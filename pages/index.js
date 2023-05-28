@@ -298,7 +298,7 @@ async function refreshStreamInfo(url, debug) {
         throw new Error("API error.")
     }
 
-    if (window && json.serverVersion > API_EPOCH) {
+    if (typeof window !== "undefined" && json.serverVersion > API_EPOCH) {
         console.warn("Reloading page because server API epoch changed.")
         window.location.reload()
     }

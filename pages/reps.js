@@ -58,7 +58,7 @@ export default function Reps(props) {
     })
     const lang = useLocalizationForRootComponentsOnly()
 
-    if (window && data.serverVersion > API_EPOCH) {
+    if (typeof window !== "undefined" && data.serverVersion > API_EPOCH) {
         window.location.reload()
     }
 
