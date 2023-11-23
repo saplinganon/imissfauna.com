@@ -23,7 +23,7 @@ One of the following variable sets are needed to configure the database:
 
 If using SQLite:
 
-- `DATABASE_TYPE=sqlite`
+- `DATABASE_TYPE=sqlite3`
 - `SQLITE_DB_PATH=./data.db`
 
 If using Postgres:
