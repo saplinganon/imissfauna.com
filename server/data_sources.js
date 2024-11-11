@@ -2,6 +2,7 @@ import { pollLivestreamStatus, pollLivestreamStatusDummy } from "../server/lives
 import { pollPaststreamStatus } from "../server/paststream_poller"
 import { STREAM_STATUS, STREAM_TYPE } from "../common/enums"
 import { findLinksFromTwitter, getStreamInfos } from "../server/twitter_stream_finder"
+import { pollHolodexLivestreamStatus } from "./holodex_poller"
 
 async function revalidateCachedStream(coordinator, streamInfo, age) {
     if (!streamInfo) {
@@ -67,7 +68,7 @@ export async function getLiveStreamData(mockKey) {
     if (process.env.USE_DUMMY_DATA === "true") {
         apiVal = await pollLivestreamStatusDummy(process.env.WATCH_CHANNEL_ID, mockKey)
     } else {
-        apiVal = await pollLivestreamStatus(process.env.WATCH_CHANNEL_ID)
+        apiVal = await pollHolodexLivestreamStatus(process.env.WATCH_CHANNEL_ID)
     }
 
     return apiVal
