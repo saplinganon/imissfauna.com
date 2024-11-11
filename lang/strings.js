@@ -4,7 +4,7 @@ const AllStrings = {}
 AllStrings["en"] = {
     CommonMetadata: {
         HeaderSMTitle: "I MISS FAUNA",
-        FooterText: "Not affiliated with Fauna or hololive - Past stream data provided by Holodex - {0}",
+        FooterText: "Not affiliated with Fauna or hololive - Stream data provided by Holodex - {0}",
         FooterSourceLink: "Source",
         FooterStreamerLink: "Ceres Fauna Ch. hololive-EN"
     },
