@@ -5,6 +5,14 @@ function createPollRoute(channelID) {
     return `https://holodex.net/api/v2/live?type=stream&sort=start_scheduled&limit=50&order=desc&channel_id=${channelID}`
 }
 
+function createThumbURL(videoID) {
+    return `https://i.ytimg.com/vi/${videoID}/mqdefault.jpg`
+}
+
+function createWatchURL(videoID) {
+    return `https://www.youtube.com/watch?v=${videoID}`
+}
+
 export async function pollHolodexLivestreamStatus() {
     const res = await fetchWithTimeout(createPollRoute(process.env.WATCH_CHANNEL_ID), {
         headers: {
@@ -66,9 +74,9 @@ export async function pollHolodexLivestreamStatus() {
     return { error: null, result: {
         live: computedStatus,
         title: minStream.title,
-        videoLink: `https://www.youtube.com/watch?v=${minStream.id}`,
+        videoLink: createWatchURL(minStream.id),
         streamStartTime: new Date(minStream.start_scheduled),
-        thumbnail: `https://i.ytimg.com/vi/${minStream.id}/hqdefault.jpg`,
+        thumbnail: createThumbURL(minStream.id),
         isMembersOnly: false,
         streamType: STREAM_TYPE.LIVE_STREAM,
     } }
